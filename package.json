@@ -38,5 +38,20 @@
     "typescript": "~5.8.2",
     "vite": "^6.2.3"
   },
-  "description": "CUBiO AI Web MVP \u2014 Standalone Deployment Distribution"
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
+  },
+  "optionalDependencies": {
+    "@esbuild/linux-x64": "^0.25.0",
+    "@rollup/rollup-linux-x64-gnu": "^4.34.0",
+    "@rollup/rollup-linux-x64-musl": "^4.34.0",
+    "@tailwindcss/oxide-linux-arm64-gnu": "4.3.3",
+    "@tailwindcss/oxide-linux-arm64-musl": "4.3.3",
+    "@tailwindcss/oxide-linux-x64-gnu": "4.3.3",
+    "@tailwindcss/oxide-linux-x64-musl": "4.3.3",
+    "@tailwindcss/oxide-win32-x64-msvc": "4.3.3",
+    "lightningcss-linux-x64-gnu": "^1.32.0",
+    "lightningcss-linux-x64-musl": "^1.32.0"
+  }
 }
