@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production Build Artifacts
+build/
+dist/
+dist-server/
+coverage/
+
+# Environment & Secrets (STRICT - NEVER COMMIT)
+.env*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+
+# Database & Persistent Working Assets (Sovereign Custody)
+*.db
+*.db-wal
+*.db-shm
+*.3dmemory
+data/*
+!data/cubio_studio.db
+!data/checkpoints/
+data/checkpoints/*
+!data/checkpoints/phase16_production_final_sealed_1m.3dmemory
+scratch/
+archive/
+
+# Logs & Debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
