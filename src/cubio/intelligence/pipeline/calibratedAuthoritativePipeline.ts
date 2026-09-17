@@ -473,8 +473,8 @@ export class CalibratedAuthoritativePipeline extends CubiOAuthoritativePipeline 
 
     // FIX 8: Real-world time query detection
     const isTimeQuery = (
-      /\b(time|waqt|ghari|ghanti|kya\s+time|kia\s+time|kitna\s+baja|kitnay\s+bajay|baje\s+hain|what\s+time|current\s+time|time\s+now)\b/i.test(pLower) ||
-      /\btime\s+(?:in|of|at)\b/i.test(pLower) ||
+      /\b(what\s+time|current\s+time|time\s+now|what\s+is\s+the\s+time|tell\s+me\s+the\s+time|kya\s+time|kia\s+time|kitna\s+baja|kitnay\s+bajay|baje\s+hain|waqt\s+kya\s+hai|ghari|ghanti)\b/i.test(pLower) ||
+      /\btime\s+(?:in|of|at)\s+[A-Za-z]+\b/i.test(pLower) ||
       /\bdubai\s+may\s+kia\s+time/i.test(pLower)
     );
 
@@ -595,118 +595,133 @@ export class CalibratedAuthoritativePipeline extends CubiOAuthoritativePipeline 
       session.setMemory('user_name', extractedCandidateName);
     }
 
+    let isNewConstraintSet = false;
+
     // 1. Budget extraction
-    const budgetMatch = sanitizedPrompt.match(/(?:budget(?:\s+ceiling)?|limit)[^\d]*\$?([0-9,]+)/i);
+    const budgetMatch = actualPrompt.match(/(?:budget(?:\s+ceiling)?|limit)[^\d]*\$?([0-9,]+)/i);
     if (budgetMatch && !isQuery) {
       const rawNum = budgetMatch[1].replace(/,/g, '');
       const formattedNum = Number(rawNum).toLocaleString('en-US');
       const budgetVal = `$${rawNum}`;
       session.setMemory('budget', budgetVal);
       session.setMemory('budget_formatted', `$${formattedNum}`);
+      isNewConstraintSet = true;
     }
 
     // 2. Project code / Secret code word
-    const codeMatch = sanitizedPrompt.match(/\b(?:code(?:\s*word)?|project\s+(?:secret\s+)?code)\b.*?([A-Z0-9]{2,}[-_][A-Z0-9_-]+|[A-Z]{3,}[0-9]+|[0-9]+[A-Z]{3,})\b/i);
+    const codeMatch = actualPrompt.match(/\b(?:code(?:\s*word)?|project\s+(?:secret\s+)?code)\b.*?([A-Z0-9]{2,}[-_][A-Z0-9_-]+|[A-Z]{3,}[0-9]+|[0-9]+[A-Z]{3,})\b/i);
     if (codeMatch && !isQuery) {
       const pCode = codeMatch[1].trim();
       const stopWords = ['kya', 'tha', 'hai', 'from', 'this', 'that', 'with', 'your', 'turn', 'what', 'word', 'for', 'the'];
       if (!stopWords.includes(pCode.toLowerCase())) {
         session.setMemory('project_code', pCode);
+        isNewConstraintSet = true;
       }
     }
 
     // 3. Active module
-    const moduleMatch = sanitizedPrompt.match(/\b(?:active\s+module|module)\b.*?([A-Z0-9_-]{3,})\b/i);
+    const moduleMatch = actualPrompt.match(/\b(?:active\s+module|module)\b.*?([A-Z0-9_-]{3,})\b/i);
     if (moduleMatch && !isQuery) {
       const mod = moduleMatch[1].trim();
       if (!['kya', 'tha', 'hai', 'the', 'our'].includes(mod.toLowerCase())) {
         session.setMemory('active_module', mod);
+        isNewConstraintSet = true;
       }
     }
 
     // 4. Backup node
-    const nodeMatch = sanitizedPrompt.match(/\b(?:backup\s+node|node\s+name|backup\s+server)\b.*?\b(?:ka\s+naam\s+)?([A-Z0-9_-]{3,})\b/i);
+    const nodeMatch = actualPrompt.match(/\b(?:backup\s+node|node\s+name|backup\s+server)\b.*?\b(?:ka\s+naam\s+)?([A-Z0-9_-]{3,})\b/i);
     if (nodeMatch && !isQuery) {
       let node = nodeMatch[1].trim();
       if (node.toLowerCase() === 'naam') {
-        const secondMatch = sanitizedPrompt.match(/\bnaam\s+([A-Z0-9_-]{3,})\b/i);
+        const secondMatch = actualPrompt.match(/\bnaam\s+([A-Z0-9_-]{3,})\b/i);
         if (secondMatch) node = secondMatch[1].trim();
       }
       if (!['kya', 'tha', 'hai', 'the', 'our', 'what', 'naam', 'rakhein'].includes(node.toLowerCase())) {
         session.setMemory('backup_node', node);
+        isNewConstraintSet = true;
       }
     }
 
     // 5. Port (database / server)
-    const portMatch = sanitizedPrompt.match(/\b(?:database\s+port|server\s+port|port)\b.*?(\d{2,5})\b/i);
+    const portMatch = actualPrompt.match(/\b(?:database\s+port|server\s+port|port)\b.*?(\d{2,5})\b/i);
     if (portMatch && !isQuery) {
       const port = portMatch[1].trim();
       session.setMemory('port', port);
+      isNewConstraintSet = true;
     }
 
     // 6. Target deadline
-    const deadlineMatch = sanitizedPrompt.match(/\b(?:target\s+deadline|deadline)\b.*?([A-Za-z]+day)\b/i);
+    const deadlineMatch = actualPrompt.match(/\b(?:target\s+deadline|deadline)\b.*?([A-Za-z]+day)\b/i);
     if (deadlineMatch && !isQuery) {
       const dl = deadlineMatch[1].trim();
       session.setMemory('deadline', dl);
+      isNewConstraintSet = true;
     }
 
     // 7. Testing build
-    const buildMatch = sanitizedPrompt.match(/\b(?:testing\s+build|build\s+version|build)\b.*?([A-Z0-9_-]{3,})\b/i);
+    const buildMatch = actualPrompt.match(/\b(?:testing\s+build|build\s+version|build)\b.*?([A-Z0-9_-]{3,})\b/i);
     if (buildMatch && !isQuery) {
       const bld = buildMatch[1].trim();
       if (!['kya', 'tha', 'hai', 'the', 'our', 'what', 'which'].includes(bld.toLowerCase())) {
         session.setMemory('build', bld);
+        isNewConstraintSet = true;
       }
     }
 
     // 8. Worker nodes
-    const workerMatch = sanitizedPrompt.match(/\b(?:(\d+)\s+worker\s+nodes?|worker\s+nodes?\b.*?(\d+))\b/i);
+    const workerMatch = actualPrompt.match(/\b(?:(\d+)\s+worker\s+nodes?|worker\s+nodes?\b.*?(\d+))\b/i);
     if (workerMatch && !isQuery) {
       const w = workerMatch[1] || workerMatch[2];
       session.setMemory('worker_nodes', w);
+      isNewConstraintSet = true;
     }
 
     // 9. Target city
-    const cityMatch = sanitizedPrompt.match(/\b(?:target\s+city|city)\b.*?(?:is|to|hai|set|kar\s+dein|:|\s)\s+([A-Za-z]+)\b/i);
+    const cityMatch = actualPrompt.match(/\b(?:target\s+city|city)\b.*?(?:is|to|hai|set|kar\s+dein|:|\s)\s+([A-Za-z]+)\b/i);
     if (cityMatch && !isQuery) {
       const city = cityMatch[1].trim();
       if (!['is', 'to', 'hai', 'the', 'a', 'our', 'target', 'city', 'which', 'what'].includes(city.toLowerCase())) {
         session.setMemory('city', city);
+        isNewConstraintSet = true;
       }
     }
 
     // 10. Max retries
-    const retriesMatch = sanitizedPrompt.match(/\b(?:max\s+retries|retries)\b.*?(\d+)\b/i);
+    const retriesMatch = actualPrompt.match(/\b(?:max\s+retries|retries)\b.*?(\d+)\b/i);
     if (retriesMatch && !isQuery) {
       const r = retriesMatch[1].trim();
       session.setMemory('retries', r);
+      isNewConstraintSet = true;
     }
 
     // 11. Cluster name
-    const clusterMatch = sanitizedPrompt.match(/\b(?:cluster(?:\s+name)?)\s*(?:is|to|as|=|:)?\s+([A-Z0-9_-]{3,})\b/i);
+    const clusterMatch = actualPrompt.match(/\b(?:cluster(?:\s+name)?)\s*(?:is|to|as|=|:)?\s+([A-Z0-9_-]{3,})\b/i);
     if (clusterMatch && !isQuery) {
       const cl = clusterMatch[1].trim();
       if (!['what', 'which', 'status', 'confirm', 'the', 'name', 'was', 'were', 'configured', 'hai', 'kya', 'is', 'to', 'for'].includes(cl.toLowerCase())) {
         session.setMemory('cluster', cl);
+        isNewConstraintSet = true;
       }
     }
     // 12. User count
-    const userMatch = sanitizedPrompt.match(/\b(?:user\s+count|users)\b.*?([0-9,]+)\b/i);
+    const userMatch = actualPrompt.match(/\b(?:user\s+count|users)\b.*?([0-9,]+)\b/i);
     if (userMatch && !isQuery) {
       const uc = userMatch[1].trim();
       session.setMemory('user_count', uc);
+      isNewConstraintSet = true;
     }
 
     // 13. Storage size
-    const storageMatch = sanitizedPrompt.match(/\b(?:storage(?:\s+size)?)\b.*?(\d+\s*[GMK]B)\b/i);
+    const storageMatch = actualPrompt.match(/\b(?:storage(?:\s+size)?)\b.*?(\d+\s*[GMK]B)\b/i);
     if (storageMatch && !isQuery) {
       const st = storageMatch[1].trim();
       session.setMemory('storage', st);
+      isNewConstraintSet = true;
     }
 
     // Check if prompt establishes a new constraint in current turn
-    const hasConstraintSetting = !isQuery && !!(codeMatch || budgetMatch || moduleMatch || nodeMatch || portMatch || deadlineMatch || buildMatch || workerMatch || cityMatch || retriesMatch || clusterMatch || userMatch || storageMatch);
+    const hasConstraintSetting = !isQuery && isNewConstraintSet;
     if (hasConstraintSetting && intentCategory === 'GENERAL_CHAT') {
       intentCategory = 'CONSTRAINT_UPDATE';
     }
@@ -894,7 +909,7 @@ export class CalibratedAuthoritativePipeline extends CubiOAuthoritativePipeline 
     } else if (intentCategory === 'ARITHMETIC') {
       reasoningMode = 'ARITHMETIC';
       // Safe multi-token or parenthesized arithmetic computation
-      const cleanExpr = sanitizedPrompt.replace(/calculate|compute|what\s+is|\?/gi, '').trim();
+      const cleanExpr = actualPrompt.replace(/calculate|compute|what\s+is|\?/gi, '').trim();
       const normalizedExpr = cleanExpr.replace(/×/g, '*').replace(/x/gi, '*');
 
       if (normalizedExpr.length > 0) {
@@ -1315,6 +1330,10 @@ export class CalibratedAuthoritativePipeline extends CubiOAuthoritativePipeline 
         textOutput = 'You are very welcome! I am glad I could help. Please let me know whenever you have more questions or tasks.';
       } else if (/understood,\s*that\s+makes\s+sense/i.test(pLower)) {
         textOutput = 'Excellent! I am ready whenever you want to proceed with the next step or explore a new topic.';
+      } else if (/cloud\s+cluster|configuring\s+a\s+(?:cloud\s+)?cluster|cluster\s+for\s+deployment/i.test(pLower)) {
+        textOutput = isRomanUrdu
+          ? 'Cloud cluster deployment context mehfooz ho chuka hai. Hum worker nodes aur cloud configuration par mazeed kaam kar saktay hain.'
+          : 'Understood. We are configuring a cloud cluster for deployment. I am tracking this context alongside your active project constraints. What parameters or node configurations would you like to specify next?';
       } else if (/mujhy\s+yeh\s+samjha\s+do/i.test(pLower)) {
         textOutput = 'Ji zaroor! Aap mujhe batayein k aap kis cheez ya sawal ko samajhna chahtay hain? Mai asaan Roman Urdu mein wazahat kar doon ga.';
       } else if (/iska\s+matlab\s+kya\s+hai/i.test(pLower)) {
