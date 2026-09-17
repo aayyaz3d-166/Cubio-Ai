@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CubiO AI — FUNNEL 06: Security Headers Middleware
  *
  * Applies production-grade security HTTP response headers to all routes.
@@ -29,11 +29,26 @@ export function securityHeaders() {
     if (isProd) {
       res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
     }
-    // Content Security Policy — restrictive baseline
-    res.setHeader(
-      'Content-Security-Policy',
-      "default-src 'none'; frame-ancestors 'none';"
-    );
+    // Content Security Policy — production SPA baseline
+    // 'self' permits same-origin Vite-compiled JS/CSS/assets.
+    // 'unsafe-inline' on style-src: React inline style={{ }} attributes
+    //   and Tailwind CSS inject <style> tags at runtime.
+    // blob: on default-src: file-export features use URL.createObjectURL().
+    // No unsafe-eval, no external origins.
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' blob: data:",
+      "font-src 'self'",
+      "connect-src 'self'",
+      "worker-src 'self' blob:",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
+    ].join('; ');
+    res.setHeader('Content-Security-Policy', csp);
     // Remove server fingerprinting
     res.removeHeader('X-Powered-By');
     next();
