@@ -1,0 +1,4 @@
+{
+  "summary": "Implement CommunicationScheduler for concurrent gradient AllReduce and computation overlap",
+  "updatedAt": "2026-09-01T02:44:37.513106700Z"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Fix tenMillionTrainingEngine getHistory returning frozen shallow copy",
+  "updatedAt": "2026-09-01T08:28:20.542072700Z"
+}

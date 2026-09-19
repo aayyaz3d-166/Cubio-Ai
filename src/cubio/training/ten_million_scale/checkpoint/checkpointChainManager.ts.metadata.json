@@ -1,0 +1,4 @@
+{
+  "summary": "Fix checkpointChainManager getChain returning frozen shallow copy",
+  "updatedAt": "2026-09-01T08:27:59.758413900Z"
+}

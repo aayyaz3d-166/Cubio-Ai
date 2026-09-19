@@ -1,0 +1,4 @@
+{
+  "summary": "DynamicBatchAllocator solving global batch, micro-batch, and gradient accumulation steps",
+  "updatedAt": "2026-09-01T06:20:19.058570200Z"
+}

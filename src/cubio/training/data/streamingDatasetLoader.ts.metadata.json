@@ -1,0 +1,4 @@
+{
+  "summary": "Implement StreamingDatasetLoader with backpressure and memory-bounded prefetching",
+  "updatedAt": "2026-09-01T02:43:03.302953500Z"
+}

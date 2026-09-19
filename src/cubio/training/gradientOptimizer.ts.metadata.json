@@ -1,0 +1,4 @@
+{
+  "summary": "Implement QuantizedGradientOptimizer for tile-by-tile low-memory gradient updates",
+  "updatedAt": "2026-09-01T01:13:47.543891100Z"
+}

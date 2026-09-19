@@ -1,0 +1,4 @@
+{
+  "summary": "Fix tokenLedger getLedger returning frozen shallow copy",
+  "updatedAt": "2026-09-01T08:27:54.463073500Z"
+}

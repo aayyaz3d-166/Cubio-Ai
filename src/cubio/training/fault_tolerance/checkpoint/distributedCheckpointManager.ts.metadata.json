@@ -1,0 +1,4 @@
+{
+  "summary": "DistributedCheckpointManager coordinating multi-rank CAS checkpoint storage",
+  "updatedAt": "2026-09-01T06:24:24.540029300Z"
+}
