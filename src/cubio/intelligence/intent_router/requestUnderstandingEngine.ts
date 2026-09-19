@@ -23,6 +23,7 @@ export type CoreIntentCategory =
   | 'MEMORY'
   | 'KNOWLEDGE'
   | 'TASK_INSTRUCTION'
+  | 'PROBLEM_TROUBLESHOOTING'
   | 'SPATIAL_CUBIO'
   | 'TOOL_REQUEST'
   | 'CLARIFICATION'
@@ -107,7 +108,8 @@ export class RequestUnderstandingEngine {
       'ache', 'bohot', 'bahut', 'gaya', 'gaye', 'gayi', 'ho', 'baad', 'pehle', 'ab', 'jab',
       'pe', 'par', 'sawal', 'jawab', 'yeh', 'woh', 'iss', 'uss', 'rakhein', 'dein',
       'salam', 'assalam', 'walaikum', 'alaikum', 'wapis', 'pehli', 'baat', 'faida', 'samjha',
-      'waqt', 'kal', 'likhwana', 'likh', 'bana', 'banao', 'chahiye'
+      'waqt', 'kal', 'likhwana', 'likh', 'bana', 'banao', 'tareeqa', 'tarika', 'hal', 'kyun',
+      'kyu', 'ke', 'ki', 'ka', 'ko', 'karoon', 'kare'
     ];
 
     let urduHits = 0;
@@ -204,10 +206,33 @@ export class RequestUnderstandingEngine {
     }
 
     // Technologies & Concepts
-    const techMatch = pLower.match(/\b(react|angular|vue|node(?:\.js)?|express|fastapi|django|docker|kubernetes|redis|postgresql|sqlite|api)\b/i);
+    const techMatch = pLower.match(/\b(react|angular|vue|node(?:\.js)?|express|fastapi|django|docker|kubernetes|redis|postgresql|sqlite|api|git|sql|html|css)\b/i);
     if (techMatch) {
       entities.push({ type: 'TECHNOLOGY_FRAMEWORK', value: techMatch[1], confidence: 0.98 });
       parameters['technology'] = techMatch[1];
+    }
+
+    // Devices & Hardware Objects
+    const deviceMatch = pLower.match(/\b(mobile\s+phone|cellphone|phone|mobile|laptop|computer|pc|wifi|wi-fi|router|battery|charger|screen|display|keyboard|mouse|printer)\b/i);
+    if (deviceMatch) {
+      let devVal = deviceMatch[1].toLowerCase().replace(/\s+/g, '_');
+      if (devVal === 'mobile_phone' || devVal === 'cellphone' || devVal === 'mobile') devVal = 'phone';
+      entities.push({ type: 'DEVICE_HARDWARE', value: devVal, confidence: 0.98 });
+      parameters['targetDevice'] = devVal;
+    }
+
+    // Everyday Action / Recipe Targets
+    const recipeMatch = pLower.match(/\b(chai|tea|pancakes?|omelette|egg|coffee|biryani|rice|pasta|soup)\b/i);
+    if (recipeMatch) {
+      entities.push({ type: 'RECIPE_SUBJECT', value: recipeMatch[1], confidence: 0.98 });
+      parameters['recipeSubject'] = recipeMatch[1];
+    }
+
+    // Professional Document Types
+    const docMatch = pLower.match(/\b(resignation|cover\s+letter|job\s+application|budget\s+plan|budget\s+proposal|email|invitation|thank\s+you\s+note)\b/i);
+    if (docMatch) {
+      entities.push({ type: 'DOCUMENT_TYPE', value: docMatch[1], confidence: 0.98 });
+      parameters['documentType'] = docMatch[1];
     }
 
     // Mathematical Expressions & Operands
@@ -236,22 +261,62 @@ export class RequestUnderstandingEngine {
       parameters['spatialCoordinate'] = c;
     }
 
+    // Generalized Key-Value Fact Assertions:
+    // e.g. "My favorite framework is Svelte", "Server region is Frankfurt", "Target audience is developers"
+    // e.g. "Hamaara server region Frankfurt hai", "Database host db.internal hai"
+    const factMatch = normalizedPrompt.match(/\b(?:my|our|target|server|database|project|client|system|user|app)?\s*([a-zA-Z0-9_\-\s]{2,25})\s*(?:is|hai|=|set to|to|rakhein)\s+([a-zA-Z0-9_\.\-\/:\$]{2,40})\b/i);
+    const isQueryPrompt = /\b(what|which|who|kya|konsa|konsi|kaun|batao|tell|remind|recall|explain|\?)\b/i.test(normalizedPrompt);
+    if (factMatch && !isQueryPrompt) {
+      const fKey = factMatch[1].trim().toLowerCase().replace(/\s+/g, '_');
+      const fVal = factMatch[2].trim();
+      const reservedStopWords = ['name', 'naam', 'code', 'budget', 'port', 'deadline', 'build', 'language', 'mein', 'ko', 'se', 'this', 'that', 'it'];
+      if (!reservedStopWords.includes(fKey) && fKey.length >= 3 && fVal.length >= 2) {
+        entities.push({ type: `FACT_${fKey.toUpperCase()}`, value: fVal, confidence: 0.95 });
+        parameters[fKey] = fVal;
+      }
+    }
+
     // -------------------------------------------------------------------------
     // 2. Anaphora & Context Resolution ("ye", "yeh", "woh", "iska", "it", "this")
     // -------------------------------------------------------------------------
-    const pronounMatch = pLower.match(/\b(ye|yeh|woh|iska|iski|iskay|is\s+ka|it|this|that|these|those)\b/i);
+    const pronounMatch = pLower.match(/\b(ye|yeh|woh|iska|iski|iskay|is\s+ka|usme|uska|uske|uski|usko|it|this|that|these|those)\b/i);
     const hasPronoun = !!pronounMatch;
 
     if (hasPronoun) {
       const pronoun = pronounMatch[1];
       let resolvedSubject: string | undefined;
 
-      if (lastAssistantMsg && lastAssistantMsg.content) {
+      // 1. Check assistant message subject analysis if available (assistant gave the topic)
+      // Ignore clarification inquiries so sample options (e.g., Python calculator) are not bound as false topics
+      const isClarificationPrompt = lastAssistantMsg?.content && (
+        /\b(could you please clarify|baraye meharbani wazahat|clarify what|what specifically|which configuration|which options|what specific aspect)\b/i.test(lastAssistantMsg.content) ||
+        /\(e\.g\.,|\(maslan/i.test(lastAssistantMsg.content)
+      );
+
+      if (lastAssistantMsg && lastAssistantMsg.content && !isClarificationPrompt) {
         if (/calculator/i.test(lastAssistantMsg.content)) resolvedSubject = 'Python Calculator';
         else if (/react/i.test(lastAssistantMsg.content)) resolvedSubject = 'React Library';
         else if (/369|spatial/i.test(lastAssistantMsg.content)) resolvedSubject = '369 Harmonic Mathematics';
         else if (/capital/i.test(lastAssistantMsg.content)) resolvedSubject = 'Capital City';
         else if (lastUserMsg && lastUserMsg.content) resolvedSubject = lastUserMsg.content;
+      }
+
+      // 2. Check if prior user turn mentioned specific entities/technologies/languages
+      if (!resolvedSubject && lastUserMsg && lastUserMsg.content) {
+        const uLower = lastUserMsg.content.toLowerCase();
+        const isAmbiguousUserMsg = /^(?:can you optimize it|ye bana do|yeh bana do|build this|make it|do it)\b/i.test(uLower.trim());
+        if (!isAmbiguousUserMsg) {
+          const uTech = uLower.match(/\b(react|angular|vue|node|fastapi|django|docker|kubernetes|redis|postgresql|sqlite|python|javascript|typescript|c\+\+|calculator)\b/i);
+          if (uTech) {
+            resolvedSubject = uTech[1].charAt(0).toUpperCase() + uTech[1].slice(1);
+          } else {
+            // Check for project/task topic in user message
+            const taskMatch = lastUserMsg.content.match(/\b(?:banao|likho|create|build|write|implement)\s+([a-zA-Z0-9_\-\s]{3,25})\b/i);
+            if (taskMatch) {
+              resolvedSubject = taskMatch[1].trim();
+            }
+          }
+        }
       }
 
       if (resolvedSubject) {
@@ -398,7 +463,40 @@ export class RequestUnderstandingEngine {
       confidence = 'HIGH';
       requiredCapabilities.push('CODE_GENERATION');
     }
-    // F. Context-Aware Simplification & Comparison (Questions)
+    // F. Problem Troubleshooting (Device, Hardware, Network, Slowness)
+    else if (
+      /\b(troubleshoot|fix|problem|issue|slow|not\s+working|disconnecting|drain|freeze|hang|stuck|battery\s+drain|charge\s+nahi|won't\s+charge|charging\s+issue|wifi\s+disconnect|wifi\s+problem|laptop\s+slow|pc\s+slow|theek\s+karein|theek\s+karo|masla|kharab)\b/i.test(pLower) ||
+      (parameters['targetDevice'] && /\b(slow|not|nahi|disconnect|drain|charge|hal|fix|issue)\b/i.test(pLower))
+    ) {
+      intent = 'PROBLEM_TROUBLESHOOTING';
+      subIntent = parameters['targetDevice'] ? `DEVICE_${String(parameters['targetDevice']).toUpperCase()}` : 'GENERAL_DIAGNOSTIC';
+      preferredRoute = 'RESPONSE_ENGINE';
+      confidence = 'HIGH';
+      requiredCapabilities.push('DIAGNOSTIC_REASONING', 'ACTIONABLE_REMEDY_SYNTHESIS');
+      executionPlan.push(`Formulate actionable diagnostic and remediation steps${parameters['targetDevice'] ? ` for ${parameters['targetDevice']}` : ''}.`);
+    }
+    // G. Task Instruction & Procedural How-To (Recipes, Professional Writing, Guides)
+    else if (
+      /\b(recipe|tarkeeb|tareeqa|tarika|how\s+to\s+make|how\s+do\s+i\s+make|bana(?:ne)?\s+ka\s+tareeqa|banao|draft|write\s+a\s+(?:letter|email|note|essay|application)|resignation|cover\s+letter|thank\s+you\s+note|budget\s+plan|savings\s+plan)\b/i.test(pLower) ||
+      parameters['recipeSubject'] ||
+      parameters['documentType']
+    ) {
+      intent = 'TASK_INSTRUCTION';
+      if (parameters['recipeSubject']) {
+        subIntent = 'RECIPE_PROCEDURAL';
+        executionPlan.push(`Synthesize recipe preparation steps for ${parameters['recipeSubject']}.`);
+      } else if (parameters['documentType']) {
+        subIntent = 'DOCUMENT_GENERATION';
+        executionPlan.push(`Draft structured professional document: ${parameters['documentType']}.`);
+      } else {
+        subIntent = 'PROCEDURAL_GUIDE';
+        executionPlan.push('Formulate step-by-step procedural instructions.');
+      }
+      preferredRoute = 'RESPONSE_ENGINE';
+      confidence = 'HIGH';
+      requiredCapabilities.push('PROCEDURAL_INSTRUCTION_SYNTHESIS');
+    }
+    // H. Context-Aware Simplification & Comparison (Questions)
     else if (
       /\b(simple\s+words|simple\s+terms|asan\s+lafzon|sada\s+alfaz|asan\s+alfaaz|simply\s+explain|asani\s+se\s+samjhao)\b/i.test(pLower)
     ) {
@@ -417,9 +515,9 @@ export class RequestUnderstandingEngine {
       requiredCapabilities.push('COMPARATIVE_REASONING');
       executionPlan.push('Synthesize structured multi-attribute comparison.');
     }
-    // G. Knowledge & Conceptual QA (e.g. "React kya hai?")
+    // I. Knowledge & Conceptual QA (e.g. "React kya hai?", "Why is sky blue?")
     else if (
-      /\b(kya\s+hai|what\s+is|explain|tell\s+me\s+about)\b/i.test(pLower) ||
+      /\b(kya\s+hai|what\s+is|explain|tell\s+me\s+about|why\s+is|kyun\s+hota|kyu\s+hai|kaise\s+kaam)\b/i.test(pLower) ||
       parameters['technology']
     ) {
       intent = 'KNOWLEDGE';
@@ -429,7 +527,7 @@ export class RequestUnderstandingEngine {
       requiredCapabilities.push('KNOWLEDGE_SYNTHESIS');
       executionPlan.push(`Provide comprehensive conceptual breakdown${parameters['technology'] ? ` for ${parameters['technology']}` : ''}.`);
     }
-    // H. Spatial / 369 Computing
+    // J. Spatial / 369 Computing
     else if (
       /\b(369|harmonic|vortex|spatial|coordinate|cell\s+id|euler\s+memory|lattice)\b/i.test(pLower) ||
       parameters['spatialCoordinate']
@@ -441,7 +539,7 @@ export class RequestUnderstandingEngine {
       requiredCapabilities.push('SPATIAL_REASONING');
       executionPlan.push('Perform spatial address calculation and harmonic state resolution.');
     }
-    // I. Fallback / General Conversation
+    // K. Fallback / General Conversation
     else {
       intent = 'CONVERSATION';
       subIntent = 'CASUAL_CHAT';

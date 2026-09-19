@@ -107,6 +107,16 @@ export class CubiOIntentRouterIntelligenceEngine implements IIntelligenceEngine 
       category = 'QUESTION';
       primaryEngineId = 'ENGINE_MEMORY';
       confidence = 0.98;
+    } else if (structuredUnderstanding.intent === 'PROBLEM_TROUBLESHOOTING') {
+      category = 'PROBLEM_TROUBLESHOOTING';
+      primaryEngineId = 'ENGINE_NATURAL_RESPONSE';
+      requiredCapabilities = ['NATURAL_LANGUAGE_SYNTHESIS'];
+      confidence = 0.99;
+    } else if (structuredUnderstanding.intent === 'TASK_INSTRUCTION') {
+      category = 'TASK_INSTRUCTION';
+      primaryEngineId = 'ENGINE_NATURAL_RESPONSE';
+      requiredCapabilities = ['NATURAL_LANGUAGE_SYNTHESIS'];
+      confidence = 0.99;
     } else if (structuredUnderstanding.intent === 'SPATIAL_CUBIO') {
       category = 'SPATIAL_REASONING';
       primaryEngineId = 'ENGINE_STATE_SPACE';

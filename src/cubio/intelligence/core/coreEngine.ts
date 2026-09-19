@@ -285,7 +285,11 @@ export class CubiOAICoreEngine {
     context.transitionTo(CoreExecutionLifecycleStage.STAGE_4_INTENT_CLASSIFICATION, 'Classifying semantic intent');
     sourcesConsulted.push('INTENT_ROUTER');
 
-    const intentAnalysis = this.intentRouter.classifyIntent(request.prompt, session);
+    // Extract actual user instruction if prompt is wrapped in composite 7-layer context
+    const currentReqMatch = request.prompt.match(/\[Current Request\]:\s*([\s\S]+?)$/i);
+    const effectivePrompt = currentReqMatch ? currentReqMatch[1].trim() : request.prompt;
+
+    const intentAnalysis = this.intentRouter.classifyIntent(effectivePrompt, session);
     const intentCategory = intentAnalysis.category;
     const structuredUnd = intentAnalysis.structuredUnderstanding;
 

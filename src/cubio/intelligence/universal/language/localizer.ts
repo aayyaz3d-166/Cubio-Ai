@@ -25,11 +25,11 @@ interface LocalizedTemplateBank {
 
 const URDU_TEMPLATES: LocalizedTemplateBank = {
   greeting:
-    'ہیلو! میں آپ کا کیوبیو (CubiO) سپیشل انٹیلیجنس اسسٹنٹ ہوں۔ میں ملٹی ڈائمینشنل سپیشل کمپیوٹنگ، 369 ہارمونک ورٹیکس ریاضی، ٹوپولوجیکل میموری، اور D0 سے D7 تک استخراجی استدلال میں مہارت رکھتا ہوں۔ آج میں آپ کی کیا مدد کر سکتا ہوں؟',
+    'ہیلو! میں کیوبیو (CubiO) اے آئی ہوں۔ میں آپ کی کیا مدد کر سکتا ہوں؟',
   help:
-    'میں آپ کی مدد کے لیے حاضر ہوں! کیوبیو ایک جامع سپیشل کمپیوٹنگ اور انٹیلیجنس پلیٹ فارم ہے۔ آپ مجھ سے درج ذیل دریافت کر سکتے ہیں:\n\n• جیومیٹری اور سپیشل ڈائمینشنز ($D_0$ تا $D_7$)\n• 369 ہارمونک ورٹیکس ریاضی اور ڈیجیٹل روٹس\n• ٹوپولوجی تجزیہ اور خلائی راستوں (Trajectories) کی پیشگوئی\n• عمومی سوالات، تخلیقی تحریر، یا ریاضیاتی حل\n\nآپ کیا دریافت کرنا چاہیں گے؟',
+    'میں آپ کی مدد کے لیے حاضر ہوں! آپ مجھ سے عمومی سوالات، مسئلہ کا حل، تحریر، کوڈنگ، یا ریاضیاتی حل دریافت کر سکتے ہیں۔ آپ کیا پوچھنا چاہتے ہیں؟',
   platform:
-    '**کیوبیو (CubiO)** ایک یونیورسل سپیشل آپریٹنگ انوائرمنٹ اور ملٹی ڈائمینشنل اے آئی پلیٹ فارم ہے۔ یہ ڈیٹرمنسٹک 3D/4D سپیشل اسٹیٹ کمپیوٹنگ، 369 ہارمونک ورٹیکس ریزوننس، اور D0 سے D7 تک خودمختار انٹیلیجنس انجنوں کو یکجا کرتا ہے۔',
+    '**کیوبیو (CubiO)** ایک جدید اور خودمختار اے آئی پلیٹ فارم ہے جو بات چیت، مسئلہ کے حل، اور منطقی استدلال کے لیے ڈیزائن کیا گیا ہے۔',
   cubeSphere:
     '3D اقلیدسی فضا ($D_3$) میں، **مکعب (Cube / Hexahedron)** اور **کرہ (Sphere)** کے درمیان بنیادی فرق جیومیٹری اور سمیٹری کا ہے:\n\n• **مکعب (Cube)**: 6 برابر مربع سطحوں، 12 کناروں، اور 8 نوکوں پر مشتمل ایک منظم کثیر السطوح ہے جس میں آرتھوگونل $90^\\circ$ زاویے ہوتے ہیں۔\n• **کرہ (Sphere)**: ایک مکمل ہموار اور ہم آہنگ سطح جہاں تمام بیرونی نقاط مرکزی نقطے سے برابر فاصلے ($r$) پر ہوتے ہیں ($SO(3)$ روٹیشنل سمیٹری)۔\n\nاعلیٰ ڈائمینشنز ($D_4$) میں، مکعب ٹیسیریکٹ (Tesseract) بن جاتا ہے اور کرہ ہائپرسفیئر کہلاتا ہے۔',
   harmonic369:
@@ -39,16 +39,16 @@ const URDU_TEMPLATES: LocalizedTemplateBank = {
   thanks:
     'خوش آمدید! اگر آپ کو کیوبیو کے حوالے سے مزید مدد چاہیے تو بلا جھجھک پوچھیں۔',
   fallback:
-    'آپ کے پیغام کا شکریہ۔ کیوبیو کے اندر آپ ملٹی ڈائمینشنل سپیشل کمپیوٹنگ، 369 ہارمونک ورٹیکس ریاضی، جیومیٹری اور ٹوپولوجی تجزیہ دریافت کر سکتے ہیں۔ آپ کیا انجام دینا چاہیں گے؟',
+    'آپ کے پیغام کا شکریہ۔ کیوبیو آپ کے مسائل کے حل، تحریر اور حسابی کاموں میں مدد کے لیے تیار ہے۔ آپ کیا انجام دینا چاہیں گے؟',
 };
 
 const ROMAN_URDU_TEMPLATES: LocalizedTemplateBank = {
   greeting:
-    'Hello! Main aap ka CubiO Spatial Intelligence Assistant hoon. Main multi-dimensional spatial computing, 369 harmonic vortex mathematics, aur topological memory ($D_0$ se $D_7$) mein specialize karta hoon. Aaj main aap ki kya madad kar sakta hoon?',
+    'Hello! Main CubiO AI hoon. Aaj main aap ki kya madad kar sakta hoon?',
   help:
-    'Main aap ki madad ke liye tayyar hoon! CubiO ek spatial computing aur intelligence assistant hai. Aap pooch sakte hain:\n\n• Geometry aur spatial dimensions ($D_0$ se $D_7$)\n• 369 harmonic vortex math aur digital roots\n• Topology analysis aur trajectory prediction\n• General questions aur creative writing\n\nAap kya explore karna chahte hain?',
+    'Main aap ki madad ke liye tayyar hoon! Aap mujh se general sawalat, problem solving, writing, coding, ya hisab ke baray mein pooch sakte hain. Batayein aapko kis cheez mein madad chahiye?',
   platform:
-    '**CubiO** ek Universal Spatial Operating Environment aur Multi-Dimensional AI Platform hai jo deterministic 3D/4D spatial state computing, 369 harmonic vortex dynamics, aur autonomous intelligence engines ko D0 se D7 tak integrate karta hai.',
+    '**CubiO** ek advanced conversational aur computational intelligence platform hai jo problem solving, writing, aur multi-turn reasoning ke liye design kiya gaya hai.',
   cubeSphere:
     '3D Euclidean space ($D_3$) mein, **Cube (Hexahedron)** aur **Sphere** ka farq geometry aur symmetry par mabni hai:\n\n• **Cube**: 6 flat square faces, 12 straight edges, aur 8 orthogonal vertices ($90^\\circ$) par mushtamil hota hai.\n• **Sphere**: Ek perfectly smooth surface jahan har point center se barabar faslay ($r$) par hota hai ($SO(3)$ continuous rotational symmetry).\n\nHigher dimensions ($D_4$) mein cube ek **Tesseract** ban jata hai aur sphere ek **Hypersphere**.',
   harmonic369:
@@ -58,16 +58,16 @@ const ROMAN_URDU_TEMPLATES: LocalizedTemplateBank = {
   thanks:
     "You're very welcome! Agar aap ko mazeed madad chahiye toh zaroor batayein.",
   fallback:
-    'Aap ke message ka shukriya. CubiO mein aap multi-dimensional computing, 369 harmonic vortex math, aur spatial reasoning explore kar sakte hain. Aap kya accomplish karna chahte hain?',
+    'Aap ke message ka shukriya. CubiO aap ke masail ke hal, writing aur reasoning mein madad ke liye tayyar hai. Aap kya accomplish karna chahte hain?',
 };
 
 const ARABIC_TEMPLATES: LocalizedTemplateBank = {
   greeting:
-    'مرحباً! أنا مساعد كيوبيو (CubiO) للذكاء المكاني والحوسبة متعددة الأبعاد عبر الأبعاد من $D_0$ إلى $D_7$. كيف يمكنني مساعدتك في استكشافك اليوم؟',
+    'مرحباً! أنا كيوبيو (CubiO) للذكاء الاصطناعي. كيف يمكنني مساعدتك اليوم؟',
   help:
-    'أنا هنا لمساعدتك! كيوبيو هو نظام ذكاء وحوسبة مكانية متقدم. يمكنك سؤالي عن:\n\n• استكشاف الهندسة والأبعاد المكانية ($D_0$ إلى $D_7$)\n• حسابات دوامة 369 التوافقية والجذور الرقمية\n• تحليل الطوبولوجيا والتنبؤ بالمسارات المكانية\n• الأسئلة العامة والحلول العلمية\n\nما الذي ترغب في استكشافه أو إنجازه؟',
+    'أنا هنا لمساعدتك! يمكنك سؤالي عن حل المشكلات، البرمجة، الحسابات، والكتابة. كيف يمكنني مساعدتك؟',
   platform:
-    '**كيوبيو (CubiO)** هي بيئة تشغيل مكانية عالمية ومنصة ذكاء اصطناعي متعددة الأبعاد تجمع بين حوسبة الحالة المكانية ثلاثية ورباعية الأبعاد، وديناميكيات دوامة 369 التوافقية، ومحركات الذكاء المستقلة عبر الأبعاد D0 إلى D7.',
+    '**كيوبيو (CubiO)** هي منصة ذكاء اصطناعي وحسابية متقدمة مصممة لحل المشكلات المعقدة والاستدلال المنطقي ومساعدة المستخدمين.',
   cubeSphere:
     'في الفضاء الإقليدي ثلاثي الأبعاد ($D_3$)، يكمن الفرق الجوهري بين **المكعب (Cube)** و **الكرة (Sphere)** في الهندسة والطوبولوجيا والتناظر:\n\n• **المكعب (Hexahedron)**: متعدد وجوه منتظم محاط بـ 6 أوجه مربعة مسطحة، و 12 حافة مستقيمة، و 8 رؤوس متعامدة بزوايا $90^\\circ$.\n• **الكرة (Sphere)**: متعدد سطوح متصل وسلس تماماً حيث تكون كل نقطة على السطح متساوية البعد ($r$) عن المركز ($SO(3)$ تناظر دوراني مستمر).\n\nفي الأبعاد الأعلى ($D_4$)، يتعمم المكعب إلى **تيسيراكت (Tesseract)** وتتعمم الكرة إلى **كرة فائقة (Hypersphere)**.',
   harmonic369:
@@ -77,16 +77,16 @@ const ARABIC_TEMPLATES: LocalizedTemplateBank = {
   thanks:
     'على الرحب والسعة! إذا كانت لديك أي استفسارات أخرى حول كيوبيو، فلا تتردد في السؤال في أي وقت.',
   fallback:
-    'شكراً لرسالتك. داخل كيوبيو يمكنك استكشاف الحوسبة المكانية متعددة الأبعاد، ورياضيات دوامة 369، وتحليل الطوبولوجيا. كيف يمكنني مساعدتك؟',
+    'شكراً لرسالتك. داخل كيوبيو يمكنك الحصول على المساعدة في حل المسائل، البرمجة، والكتابة. كيف يمكنني مساعدتك؟',
 };
 
 const PUNJABI_ROMAN_TEMPLATES: LocalizedTemplateBank = {
   greeting:
-    'Sat Sri Akaal! Main tuhada CubiO Spatial Intelligence Assistant haan. Main multi-dimensional spatial computing aur 369 harmonic vortex math vich specialize karda haan. Daso ajj main tuhadi ki madad kar sakda haan?',
+    'Sat Sri Akaal! Main CubiO AI haan. Daso ajj main tuhadi ki madad kar sakda haan?',
   help:
-    'Main tuhadi madad layi haazir haan! Tussi CubiO vich geometry, 369 vortex calculation, spatial trajectory prediction aur general sawal pooch sakde ho.',
+    'Main tuhadi madad layi haazir haan! Tussi problem solving, coding, hisab te aam sawal pooch sakde ho.',
   platform:
-    '**CubiO** ik Universal Spatial Operating Environment te Multi-Dimensional AI Platform hai jo D0 ton D7 tak operate karda hai.',
+    '**CubiO** ik modern AI intelligence platform hai jo problem solving te multi-turn reasoning layi design kita gaya hai.',
   cubeSphere:
     '3D Euclidean space ($D_3$) vich, **Cube** te **Sphere** da farak geometry aur symmetry vich hai:\n\n• **Cube**: 6 barabar square faces, 12 edges, aur 8 orthogonal vertices hunde ne.\n• **Sphere**: Ik perfectly smooth continuous surface jithe har point center ton barabar fasle te hunda hai.',
   harmonic369:
@@ -96,7 +96,7 @@ const PUNJABI_ROMAN_TEMPLATES: LocalizedTemplateBank = {
   thanks:
     'Tuhada bahut shukriya! Je koi hor sawal hove tan zaroor dasso.',
   fallback:
-    'Tuhade message layi shukriya. CubiO vich tussi spatial computing, 369 vortex math, aur topology explore kar sakde ho.',
+    'Tuhade message layi shukriya. CubiO tuhadi madad layi tayyar hai. Daso ki karna chahunde ho?',
 };
 
 /**
@@ -138,15 +138,15 @@ export function localizeResponse(
       } else if (targetLanguage === 'ur') {
         localizedText = 'جی بالکل، میں سن رہا ہوں اور کیوبیو (CubiO) سپیشل آپریٹنگ انوائرمنٹ میں فعال ہوں۔ آج میں آپ کی کیا مدد کر سکتا ہوں؟';
       } else if (targetLanguage === 'ar') {
-        localizedText = 'نعم، أنا أستمع إليك ونظام كيوبیو المكاني نشط وجاهز لمساعدتك اليوم.';
+        localizedText = 'نعم، أنا أستمع إليك وجاهز لمساعدتك اليوم.';
       } else if (targetLanguage === 'pa-roman' || targetLanguage === 'pa') {
-        localizedText = 'Haan ji, main sun reha haan te CubiO spatial environment vich active haan. Daso ajj main tuhadi ki madad kar sakda haan?';
+        localizedText = 'Haan ji, main sun reha haan te madad layi tayyar haan. Daso ajj main tuhadi ki madad kar sakda haan?';
       }
     } else if (sLower.includes('in simple words') && sLower.includes('cubio')) {
       if (targetLanguage === 'ur-roman') {
-        localizedText = '**CubiO** ek multi-dimensional spatial AI platform hai. Seedhay lafzon mein, ye 3D/4D spatial computing aur 369 harmonic math ko combine karta hai taake aap dimensions D0 se D7 tak explore aur create kar sakein.';
+        localizedText = '**CubiO AI** ek helpful conversational aur computational assistant hai jo problem solving, writing aur calculations mein madad karta hai.';
       } else if (targetLanguage === 'ur') {
-        localizedText = '**کیوبیو (CubiO)** ایک کثیر جہتی سپیشل اے آئی پلیٹ فارم ہے۔ آسان الفاظ میں، یہ 3D/4D سپیشل کمپیوٹنگ اور 369 ہارمونک ریاضی کو یکجا کرتا ہے تاکہ آپ D0 سے D7 ڈائمینشنز میں دریافت اور تخلیق کر سکیں۔';
+        localizedText = '**کیوبیو (CubiO)** ایک مددگار بات چیت اور حساب کتاب کا اے آئی اسسٹنٹ ہے جو مسائل کے حل، تحریر اور حسابی کاموں میں مدد فراہم کرتا ہے۔';
       } else {
         localizedText = bank.platform;
       }

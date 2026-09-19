@@ -19,7 +19,11 @@ import { ContextManager } from '../../inference/context/contextManager';
 import { MetricsCollector } from '../../infra/observability/metricsCollector';
 import { Native1MProductionService } from '../../inference/native1mProductionService';
 import { CubiOChatEngine } from '../../intelligence/chat/chatEngine';
-import { IS_ACTUATION_BLOCKED } from '../../intelligence/chat/chatEngineContract';
+import {
+  IS_ACTUATION_BLOCKED,
+  ChatEngineError,
+  ChatErrorType,
+} from '../../intelligence/chat/chatEngineContract';
 
 const CANONICAL_VDB_SHA256 = 'bafd4afd53bf93b2924f869e2c061853162a0d6eedd853a7ba704172e9fd9ff6';
 const CANONICAL_VDB_SIZE = 77824;
@@ -82,10 +86,51 @@ export async function queryHandler(req: Request, res: Response): Promise<void> {
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
+    if (err instanceof ChatEngineError) {
+      if (err.errorType === ChatErrorType.ACTUATION_PROHIBITED) {
+        res.status(403).json({
+          error: 'Forbidden',
+          code: 'ACTUATION_PROHIBITED',
+          detail: 'Hardware actuation is permanently disabled. Physical device control is prohibited.',
+        });
+        return;
+      }
+      if (err.errorType === ChatErrorType.EXTERNAL_MODEL_CONTAMINATION) {
+        res.status(403).json({
+          error: 'Forbidden',
+          code: 'EXTERNAL_MODEL_PROHIBITED',
+          detail: 'External model invocation is prohibited. System operates exclusively on sovereign native intelligence.',
+        });
+        return;
+      }
+      if (err.errorType === ChatErrorType.TENANT_ISOLATION_VIOLATION || err.errorType === ChatErrorType.SESSION_ISOLATION_VIOLATION) {
+        res.status(403).json({
+          error: 'Forbidden',
+          code: 'ISOLATION_VIOLATION',
+          detail: 'Cross-session or cross-tenant data access is prohibited.',
+        });
+        return;
+      }
+      if (err.errorType === ChatErrorType.CONTEXT_OVERFLOW) {
+        res.status(413).json({
+          error: 'Payload Too Large',
+          code: 'CONTEXT_OVERFLOW',
+          detail: 'The submitted message exceeds maximum allowed context limits.',
+        });
+        return;
+      }
+      res.status(400).json({
+        error: 'Bad Request',
+        code: err.errorType || 'CHAT_ERROR',
+        detail: err.message.replace(/^\[[^\]]+\]\s*/, ''),
+      });
+      return;
+    }
+
     res.status(500).json({
       error: 'Internal Server Error',
       code: 'QUERY_PROCESSING_FAILED',
-      detail: err.message,
+      detail: 'An unexpected internal error occurred while processing the query. Forensic trace has been logged.',
     });
   }
 }
@@ -121,7 +166,7 @@ export function memoryHandler(_req: Request, res: Response): void {
     },
     memory: {
       activeSessions,
-      storagePath: ContextManager.DEFAULT_STORAGE_PATH,
+      storagePath: 'SOVEREIGN_ENCLAVE_STORAGE',
       address369Cells: 343,
       symbolicAnchors: 26,
       totalAddressSpace: 369,
@@ -178,7 +223,7 @@ export function contextHandler(req: Request, res: Response): void {
     res.status(403).json({
       error: 'Forbidden',
       code: 'TENANT_ISOLATION_VIOLATION',
-      detail: err.message,
+      detail: 'Access to session context is restricted under isolation policies.',
     });
   }
 }
@@ -213,7 +258,7 @@ export function sessionHandler(req: Request, res: Response): void {
     res.status(500).json({
       error: 'Internal Server Error',
       code: 'SESSION_OPERATION_FAILED',
-      detail: err.message,
+      detail: 'Session lifecycle operation could not be completed. Trace recorded.',
     });
   }
 }

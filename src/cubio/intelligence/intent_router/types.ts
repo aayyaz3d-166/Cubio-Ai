@@ -34,6 +34,8 @@ export type UserIntentCategory =
   | 'MEMORY'
   | 'KNOWLEDGE'
   | 'TASK_INSTRUCTION'
+  | 'PROBLEM_TROUBLESHOOTING'
+  | 'EXPLANATION'
   | 'SPATIAL_CUBIO'
   | 'TOOL_REQUEST'
   | 'CLARIFICATION'

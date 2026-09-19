@@ -1,0 +1,36 @@
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/api/v1/mvpHandlers.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/inference/native1mProductionService.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/chat/chatEngine.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/chat/memory/memoryUnderstandingEngine.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/core/coreEngine.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/intent_router/intentRouterEngine.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/intent_router/requestUnderstandingEngine.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/intent_router/types.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/natural_response/conversationalResponseEngine.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/natural_response/naturalResponseEngine.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/pipeline/authoritativePipeline.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/reasoning/reasoningEngine.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/reasoning/types.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/cubio/intelligence/universal/language/localizer.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'vite.config.ts', LF will be replaced by CRLF the next time Git touches it
+ .gitignore                                         |    1 [32m+[m
+ package.json                                       |    3 [32m+[m[31m-[m
+ src/cubio/api/v1/mvpHandlers.ts                    |   55 [32m+[m[31m-[m
+ src/cubio/inference/native1mProductionService.ts   |   11 [32m+[m
+ src/cubio/intelligence/chat/chatEngine.ts          |   16 [32m+[m[31m-[m
+ .../chat/memory/memoryUnderstandingEngine.ts       |   22 [32m+[m
+ src/cubio/intelligence/core/coreEngine.ts          |    6 [32m+[m[31m-[m
+ .../intent_router/intentRouterEngine.ts            |   10 [32m+[m
+ .../intent_router/requestUnderstandingEngine.ts    |  116 [32m+[m[31m-[m
+ src/cubio/intelligence/intent_router/types.ts      |    2 [32m+[m
+ .../conversationalResponseEngine.ts                | 2582 [32m++++++++++++++++++[m[31m--[m
+ .../natural_response/naturalResponseEngine.ts      |   24 [32m+[m[31m-[m
+ .../intelligence/pipeline/authoritativePipeline.ts |   88 [32m+[m[31m-[m
+ .../pipeline/calibratedAuthoritativePipeline.ts    | 2331 [32m+++++++++++++++++[m[31m-[m
+ .../intelligence/reasoning/reasoningEngine.ts      |  215 [32m++[m
+ src/cubio/intelligence/reasoning/types.ts          |   25 [32m+[m
+ .../intelligence/universal/language/localizer.ts   |   40 [32m+[m[31m-[m
+ vite.config.ts                                     |   14 [32m+[m[31m-[m
+ 18 files changed, 5194 insertions(+), 367 deletions(-)

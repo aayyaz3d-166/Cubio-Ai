@@ -116,6 +116,28 @@ export class MemoryUnderstandingEngine {
     }
 
     // =========================================================================
+    // 2b. EPISTEMIC FILTER: INQUIRIES & UNCERTAIN/SPECULATIVE STATEMENTS
+    // =========================================================================
+    const isUncertainOrSpeculative = /\b(maybe|perhaps|possibly|probably|i\s+think|i\s+guess|i\s+suppose|i\s+believe|not\s+sure|might\s+be|could\s+be|would\s+be|what\s+if|suppose|assuming|hypothetically|wonder\s+if|unclear|doubt|shayad|lagta\s+hai|ho\s+sakta\s+hai|farz\s+karo|farz\s+karein|kya\s+pata|mumkin\s+hai|agar)\b/i.test(lower);
+    const isInvertedQuestion = /^\s*(?:is|are|was|were|do|does|did|can|could|would|should|will|shall|may|might|am|has|have|had)\b/i.test(lower);
+    const isWhQuestion = /^\s*(?:what|which|who|whom|whose|where|when|why|how|kya|kaise|kaisay|kyun|kyu|kahan|kab|konsa|konsi|kon|kaun|kitna|kitni|kitnay)\b/i.test(lower);
+    const hasQuestionMark = /\?/.test(raw);
+
+    const isQuestionOrUncertain = (isInvertedQuestion || isWhQuestion || hasQuestionMark || isUncertainOrSpeculative) && !isExplicitStore;
+
+    if (isQuestionOrUncertain && explicitAction === 'NONE') {
+      return Object.freeze({
+        categories: Object.freeze(['NO_MEMORY_WORTHY_INFO'] as MemoryClassificationCategory[]),
+        explicitAction: 'NONE',
+        extractedFacts: Object.freeze([]),
+        isCorrection: false,
+        detectedContradictions: Object.freeze([]),
+        isMemoryWorthy: false,
+        reasoning: 'Input is an inquiry or speculative/uncertain statement with zero verified factual commitments.',
+      });
+    }
+
+    // =========================================================================
     // 3. FACT & ATTRIBUTE EXTRACTION
     // =========================================================================
 

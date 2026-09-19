@@ -312,13 +312,12 @@ export class CubiOChatEngine {
       );
     }
 
-    // Fallback inclusion of session context facts for legacy tests
+    // Inclusion of session context facts when relevant to current query or on explicit recall
     for (const [k, v] of Object.entries(session.getAllMemory())) {
       if (!retrievalResult.retrievedMemories.some((r) => r.memory.key === k)) {
         if (
           request.message.toLowerCase().includes(k.toLowerCase()) ||
-          memoryUnderstanding.explicitAction === 'RECALL' ||
-          retrievalResult.retrievedMemories.length === 0
+          memoryUnderstanding.explicitAction === 'RECALL'
         ) {
           retrievedMemory.push(`Session Context Fact: ${k} = "${v}"`);
         }
@@ -455,6 +454,17 @@ export class CubiOChatEngine {
    * Extracts user constraints and handles explicit contradictions/supersessions.
    */
   private extractAndApplyUserConstraints(message: string, session: ChatSession): void {
+    const lower = message.toLowerCase();
+    const isUncertainOrSpeculative = /\b(maybe|perhaps|possibly|probably|i\s+think|i\s+guess|i\s+suppose|i\s+believe|not\s+sure|might\s+be|could\s+be|would\s+be|what\s+if|suppose|assuming|hypothetically|wonder\s+if|unclear|doubt|shayad|lagta\s+hai|ho\s+sakta\s+hai|farz\s+karo|farz\s+karein|kya\s+pata|mumkin\s+hai|agar)\b/i.test(lower);
+    const isInvertedQuestion = /^\s*(?:is|are|was|were|do|does|did|can|could|would|should|will|shall|may|might|am|has|have|had)\b/i.test(lower);
+    const isWhQuestion = /^\s*(?:what|which|who|whom|whose|where|when|why|how|kya|kaise|kaisay|kyun|kyu|kahan|kab|konsa|konsi|kon|kaun|kitna|kitni|kitnay)\b/i.test(lower);
+    const hasQuestionMark = /\?/.test(message);
+
+    if (isUncertainOrSpeculative || isInvertedQuestion || isWhQuestion || hasQuestionMark) {
+      // Questions and uncertain statements cannot set constraints
+      return;
+    }
+
     // Pattern 1: Explicit preference / constraint: "Do not use external models"
     if (/\b(do not use external models|no external models|native models only)\b/i.test(message)) {
       session.addConstraint('model_policy', 'NATIVE_ONLY', 'USER_EXPLICIT');

@@ -5,10 +5,17 @@ import { defineConfig } from 'vite';
 import { installCalibratedAuthoritativePipeline } from './src/cubio/intelligence/pipeline/calibratedAuthoritativePipeline';
 import { CubiOInferenceRouter } from './src/cubio/inference/backend/cubioInferenceRouter';
 
+import express from 'express';
+import { v1Router } from './src/cubio/api/v1/router';
+
 // Install calibrated authoritative pipeline singleton into CUBiO core
 installCalibratedAuthoritativePipeline();
 
 const inferenceRouter = new CubiOInferenceRouter();
+
+const v1App = express();
+v1App.use(express.json({ limit: '64kb' }));
+v1App.use(v1Router);
 
 export default defineConfig(() => {
   return {
@@ -18,6 +25,7 @@ export default defineConfig(() => {
       {
         name: 'cubio-inference-api-middleware',
         configureServer(server) {
+          server.middlewares.use('/api/v1', v1App);
           server.middlewares.use(async (req, res, next) => {
             const url = req.url || '';
             if (url.startsWith('/api/cubio/')) {
@@ -108,12 +116,6 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {
         ignored: ['**/data/**', '**/data/cubio_sessions.json'],
-      },
-      proxy: {
-        '/api/v1': {
-          target: 'http://localhost:3000',
-          changeOrigin: true,
-        },
       },
     },
   };

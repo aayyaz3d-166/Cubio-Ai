@@ -62,3 +62,28 @@ export interface ReasoningRequest {
   readonly memories?: readonly AssociativeMemoryNode[];
   readonly contextEnvelopeId?: string;
 }
+
+export type StructuredReasoningDomain =
+  | 'DECOMPOSITION'
+  | 'STEP_BY_STEP_MATH'
+  | 'COMPARISON'
+  | 'TROUBLESHOOTING'
+  | 'DEDUCTION';
+
+export interface StructuredReasoningRequest {
+  readonly goal: string;
+  readonly domain: StructuredReasoningDomain;
+  readonly premises?: readonly string[];
+  readonly constraints?: Readonly<Record<string, string>>;
+  readonly parameters?: Readonly<Record<string, any>>;
+  readonly language?: 'ROMAN_URDU' | 'ENGLISH' | 'MULTILINGUAL';
+}
+
+export interface StructuredReasoningResult {
+  readonly reasoningId: string;
+  readonly domain: StructuredReasoningDomain;
+  readonly proof: ReasoningProofReport;
+  readonly structuredAnswer: string;
+  readonly keyTakeaways: readonly string[];
+  readonly confidence: number;
+}

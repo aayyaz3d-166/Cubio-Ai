@@ -15,6 +15,7 @@ import { deterministicHash } from '../../state/determinism';
 import { ContextManager } from '../../inference/context/contextManager';
 import { ChatMessage, InferenceChatRequest } from '../../inference/types';
 import { CUBIO_SYSTEM_PROMPT } from '../universal/llm/systemPrompt';
+import { ConversationalResponseEngine } from '../natural_response/conversationalResponseEngine';
 
 export interface PipelineTraceRecord {
   readonly executionId: string;
@@ -37,6 +38,8 @@ export interface PipelineTraceRecord {
     readonly memoryHit: boolean;
     readonly retrievedKeys: readonly string[];
     readonly activeConstraints: Readonly<Record<string, string>>;
+    readonly canonicalReferences?: readonly string[];
+    readonly boundedMemoryCount?: number;
   };
   readonly associationLayer: {
     readonly entitiesIdentified: readonly string[];
@@ -53,6 +56,13 @@ export interface PipelineTraceRecord {
     readonly claims: readonly string[];
     readonly evaluatedResult?: any;
     readonly confidence: number;
+    readonly native1m?: {
+      readonly dominantEpistemic: string;
+      readonly tokenLoss: number;
+      readonly latencyMs: number;
+      readonly evaluated: boolean;
+      readonly spatialAddress369?: number;
+    };
   };
   readonly responseGenerator: {
     readonly outputLanguage: 'ROMAN_URDU' | 'ENGLISH' | 'MULTILINGUAL';
@@ -168,8 +178,25 @@ export class CubiOAuthoritativePipeline {
     ).length;
 
     const priorLanguageConstraint = session.getMemory('language_constraint');
-    const isRomanUrduExplicit = /\b(reply only in roman urdu|sirf roman urdu|roman urdu mein)\b/i.test(pLower);
-    const isRomanUrdu = isRomanUrduExplicit || priorLanguageConstraint === 'ROMAN_URDU' || romanUrduHits >= 1;
+    const isRomanUrduConstraint = /\b(reply\s+(?:only\s+)?in\s+roman\s+urdu|only\s+roman\s+urdu|sirf\s+roman\s+urdu|from\s+now\s+on\s+(?:only\s+)?roman\s+urdu)\b/i.test(pLower);
+    const isEnglishConstraint = /\b(reply\s+(?:only\s+)?in\s+english|only\s+english|sirf\s+english|switch\s+to\s+english|speak\s+in\s+english|respond\s+in\s+english|switch\s+back\s+to\s+english|english\s+mein\s+(?:baat\s+karein|baat\s+karo|bolo|jawab\s+dein))\b/i.test(pLower);
+    const isUrduGreeting = /\b(salam|assalam[\s-]*(?:o|u)?[\s-]*alaikum|adab|aao)\b/i.test(pLower);
+    const hasUrduInPrompt = /\b(roman\s+urdu|in\s+urdu|urdu\s+mein)\b/i.test(pLower);
+
+    let isRomanUrdu: boolean;
+    if (isEnglishConstraint) {
+      isRomanUrdu = false;
+      session.setMemory('language_constraint', 'ENGLISH');
+    } else if (isRomanUrduConstraint) {
+      isRomanUrdu = true;
+      session.setMemory('language_constraint', 'ROMAN_URDU');
+    } else if (priorLanguageConstraint === 'ROMAN_URDU' && !/\b(in\s+english|english\s+please)\b/i.test(pLower)) {
+      isRomanUrdu = true;
+    } else if (priorLanguageConstraint === 'ENGLISH' && !hasUrduInPrompt && romanUrduHits === 0) {
+      isRomanUrdu = false;
+    } else {
+      isRomanUrdu = isUrduGreeting || hasUrduInPrompt || romanUrduHits >= 1;
+    }
 
     const isMultilingualGreeting = /\b(bonjour|hola|guten tag|marhaban|ciao|namaste|konnichiwa)\b/i.test(pLower);
     const detectedLanguage: 'ROMAN_URDU' | 'ENGLISH' | 'MULTILINGUAL' = isMultilingualGreeting
@@ -185,7 +212,7 @@ export class CubiOAuthoritativePipeline {
       intentCategory = 'REFUSAL_ABSTENTION';
     } else if (/\b(explain\s+369|369\s+(in\s+one\s+sentence|vortex|mathematics)|how\s+do\s+the\s+numbers\s+3,\s*6,\s*9|vortex\s+balance|divisible\s+by\s+3)\b/i.test(pLower)) {
       intentCategory = 'HARMONIC_369';
-    } else if (/\b(reply\s+only\s+in\s+roman\s+urdu|only\s+roman\s+urdu)\b/i.test(pLower)) {
+    } else if (isRomanUrduConstraint || isEnglishConstraint) {
       intentCategory = 'CONVERSATION_CONSTRAINT';
     } else if (
       (/\b(which\s+(one|tool|framework|option|database|language|approach)\s+(should|is|do|would|could|select|pick|choose)\b|\bwhat\s+is\s+(better|best|preferred)\b|\bwhich\s+is\s+(better|best)\b|\bkonsa\s+(behtar|acha|munasib)\b|\bshould\s+i\s+do\s+it\b)/i.test(pLower)) &&
@@ -230,7 +257,19 @@ export class CubiOAuthoritativePipeline {
     const retrievedKeys: string[] = [];
     const activeConstraints: Record<string, string> = {};
 
-    const isQuery = /\b(kya|what|which|konsa|konsi|tell|batao|kahan|kaun|how|was|is\s+\$?\d+)\b/i.test(pLower) && !/\b(change|update|actually|instead|nahi|correction)\b/i.test(pLower);
+    const isExplicitStoreDirective = /\b(?:remember\s+that|note\s+that|store(?:\s+this)?|save(?:\s+this)?|mehfooz\s+kar(?:o|na)|yaad\s+rakh(?:o|na))\b/i.test(sanitizedPrompt);
+    const isUncertainOrSpeculative = /\b(maybe|perhaps|possibly|probably|i\s+think|i\s+guess|i\s+suppose|i\s+believe|not\s+sure|might\s+be|could\s+be|would\s+be|what\s+if|suppose|assuming|hypothetically|wonder\s+if|unclear|doubt|shayad|lagta\s+hai|ho\s+sakta\s+hai|farz\s+karo|farz\s+karein|kya\s+pata|mumkin\s+hai|agar)\b/i.test(pLower);
+    const isInvertedQuestion = /^\s*(?:is|are|was|were|do|does|did|can|could|would|should|will|shall|may|might|am|has|have|had)\b/i.test(pLower);
+    const startsWithQuestionWord = /^\s*(?:what|which|who|where|how|why|when|kya|kaise|kyun|kahan|kab|konsa|konsi|explain|tell|solve|calculate)\b/i.test(sanitizedPrompt);
+    const hasQuestionMark = /\?/.test(sanitizedPrompt);
+
+    const isQuestionOrInquiry = (startsWithQuestionWord || isInvertedQuestion || hasQuestionMark) && !isExplicitStoreDirective;
+    const isEpistemicallyUncertain = (isUncertainOrSpeculative || isQuestionOrInquiry) && !isExplicitStoreDirective;
+
+    const isQuery = (
+      isEpistemicallyUncertain ||
+      (/\b(kya|what|which|konsa|konsi|tell|batao|kahan|kaun|how|was|is\s+\$?\d+)\b/i.test(pLower) && !/\b(change|update|actually|instead|nahi|correction)\b/i.test(pLower))
+    );
 
     // 1. Budget extraction
     const budgetMatch = sanitizedPrompt.match(/(?:budget|limit)[^\d]*\$?([0-9,]+)/i);
@@ -354,9 +393,12 @@ export class CubiOAuthoritativePipeline {
     }
 
     // Check language constraint setting
-    if (isRomanUrduExplicit) {
+    if (isRomanUrduConstraint) {
       session.setMemory('language_constraint', 'ROMAN_URDU');
       this.contextManager.setTenantMemory(tenantId, 'language_constraint', 'ROMAN_URDU');
+    } else if (isEnglishConstraint) {
+      session.setMemory('language_constraint', 'ENGLISH');
+      this.contextManager.setTenantMemory(tenantId, 'language_constraint', 'ENGLISH');
     }
 
     // Retrieve active constraints
@@ -628,19 +670,19 @@ export class CubiOAuthoritativePipeline {
       }
     } else if (intentCategory === 'GREETING') {
       textOutput = isRomanUrdu
-        ? 'Assalam-o-Alaikum! Mai CubiO AI Assistant hon. Mai aapki kya madad kar sakta hon?'
-        : 'Hello! I am CubiO AI, your spatial computing and reasoning assistant. How can I assist you today?';
+        ? 'Assalam-o-Alaikum! Main CubiO AI hoon. Main aapki kya madad kar sakta hoon?'
+        : 'Hello! I am CubiO AI. How can I help you today?';
     } else if (intentCategory === 'HELP') {
       textOutput = isRomanUrdu
-        ? 'G han bilkul! Mai aapki madad karny k liye tayyar hon. Aap spatial geometry, multi-turn calculations, reasoning ya apny project k hawaly sy sawalat pooch sakty hain. Aapko kis cheez mai help chahiya?'
-        : 'I am here to help! CubiO AI can assist with spatial computing, mathematical calculations, complex reasoning, and project task management. What would you like to explore?';
+        ? 'Ji zaroor, batayein aapko kis cheez mein madad chahiye? Main poori tarah tayyar hoon.'
+        : "Of course! How can I help you? Tell me what you're working on or what you need assistance with.";
     } else if (intentCategory === 'CLARIFICATION_REPAIR') {
       if (isRomanUrdu) {
         textOutput =
-          'Koi masla nahi! Mera matlab ye tha k CubiO ek advanced AI platform hai jo spatial computing, persistent memory aur multi-turn reasoning mein madad karta hai. Agar aapko koi cheez samajh nahi aayi, to batayein k kis hissay ko mazeed wazahat sy samjhana hai.';
+          'Koi masla nahi! Mera matlab ye tha k CubiO ek helpful AI assistant hai jo problem solving, writing aur calculations mein madad karta hai. Agar aapko koi cheez samajh nahi aayi, to batayein k kis hissay ko mazeed wazahat sy samjhana hai.';
       } else {
         textOutput =
-          'No problem at all! Let me clarify: CubiO is an AI operating environment designed for multi-dimensional spatial computing, reasoning, and context-aware task assistance. Please tell me which part you would like me to explain in more detail.';
+          'No problem at all! Let me clarify: CubiO is an AI assistant designed to help with general questions, problem solving, writing, and calculations. Please tell me which part you would like me to explain in more detail.';
       }
     } else if (intentCategory === 'FACTUAL_QA' && evaluatedResult !== null) {
       if (evaluatedResult === 'Islamabad') {
@@ -697,7 +739,11 @@ export class CubiOAuthoritativePipeline {
           : `Based on deductive reasoning, the verified result is **${evaluatedResult || 'valid'}**.`;
       }
     } else if (intentCategory === 'CONVERSATION_CONSTRAINT') {
-      textOutput = 'Theek hai, ab se mai aapko sirf Roman Urdu mein jawab doon ga. Aap apna agla sawal poochein!';
+      if (isEnglishConstraint) {
+        textOutput = 'Understood! I will now respond in English. What would you like to explore or work on?';
+      } else {
+        textOutput = 'Theek hai, ab se mai aapko sirf Roman Urdu mein jawab doon ga. Aap apna agla sawal poochein!';
+      }
     } else if (intentCategory === 'HARMONIC_369') {
       if (/divisible/i.test(pLower)) {
         textOutput = 'Yes, 369 is divisible by 3 (369 / 3 = 123, and sum of digits 3 + 6 + 9 = 18).';
@@ -845,11 +891,21 @@ export class CubiOAuthoritativePipeline {
           : 'Yes, following up on your previous turn, all parameters have been preserved. What would you like to do next?';
       }
     } else {
-      // General chat fallback conditioned by system prompt
-      textOutput = isRomanUrdu
-        ? `Aap k sawal ("${sanitizedPrompt}") par ghour kiya gaya hai. System monitoring aur task status active hain. Mai mazeed technical analysis aur assistance k liye mukammal tor par hazir hon.`
-        : `Regarding your inquiry ("${sanitizedPrompt}"): system parameters and services are active. How can I help you further?`;
+      // General chat fallback via ConversationalResponseEngine
+      const convRes = ConversationalResponseEngine.synthesize({
+        prompt: sanitizedPrompt,
+        sessionId,
+        tenantId,
+        messages: allHistory,
+        activeConstraints,
+        userName: session.getMemory('user_name'),
+        detectedLanguage,
+        intentCategory,
+      });
+      textOutput = convRes.text;
+      pipelineEpistemicStatus = convRes.epistemicStatus;
     }
+
 
     // Compile Trace Record proving execution of all 7 routing layers
     const executionId = `EXEC_${deterministicHash(`${sanitizedPrompt}:${startTime}`).slice(2, 14)}`;

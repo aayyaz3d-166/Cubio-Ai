@@ -26,6 +26,7 @@ coverage/
 *.3dmemory
 data/*
 !data/cubio_studio.db
+!data/mvp_v2_production_sha256_manifest.json
 !data/checkpoints/
 data/checkpoints/*
 !data/checkpoints/phase16_production_final_sealed_1m.3dmemory

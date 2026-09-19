@@ -90,7 +90,7 @@ export class CubiONaturalResponseIntelligenceEngine implements IIntelligenceEngi
         pLower === 'hey'
       ) {
         cleanContent =
-          'Hello! I am your CubiO Spatial Intelligence Assistant. I specialize in multi-dimensional spatial computing, 369 harmonic vortex mathematics, topological state memory, and deductive reasoning across dimensions D0 through D7. How can I assist your exploration today?';
+          'Hello! I am CubiO AI. How can I help you today?';
       }
       // 1b. Presence / Listening Inquiries (e.g. "sun rahy ho", "are you there", "can you hear me")
       else if (
@@ -99,7 +99,7 @@ export class CubiONaturalResponseIntelligenceEngine implements IIntelligenceEngi
         )
       ) {
         cleanContent =
-          'Yes, I am listening and active in the CubiO spatial operating environment. How can I assist you with spatial reasoning, 369 mathematics, or your project workspace today?';
+          'Yes, I am here and ready to help. How can I assist you today?';
       }
       // 2. Help & Capabilities Inquiries
       else if (
@@ -108,21 +108,21 @@ export class CubiONaturalResponseIntelligenceEngine implements IIntelligenceEngi
         )
       ) {
         cleanContent =
-          'I am here to help! CubiO is a spatial computing and intelligence assistant. You can ask me to:\n\n• Explore geometry and spatial dimensions ($D_0$ through $D_7$)\n• Perform 369 harmonic vortex mathematics and calculate digital roots\n• Analyze spatial topologies, reason about manifolds, or forecast trajectories\n• Answer general questions, solve problems, or engage in creative writing\n\nWhat would you like to explore or accomplish?';
+          "I am here to help! Tell me what you're working on or what you need assistance with.";
       }
       // 2b. Roman Urdu Help & Presence (e.g. "mujhy help chahiya", "madad chahiya")
       else if (
         /\b(mujhy\s+help\s+chahi?ya|madad\s+chahi?ya|meri\s+madad\s+karo)\b/i.test(pLower)
       ) {
         cleanContent =
-          'G han bilkul! Mai aapki madad karny k liye tayyar hon. CubiO Spatial AI platform par aap spatial geometry, 369 mathematics, multi-turn reasoning ya apny project k hawaly sy sawalat poch sakty hain. Aapko kis cheez mai help chahiya?';
+          'Ji zaroor, batayein aapko kis cheez mein madad chahiye? Main poori tarah tayyar hoon.';
       }
       // 2c. Roman Urdu Confusion / Clarification (e.g. "mtlb mai smja nahi", "samajh nahi aya")
       else if (
         /\b(mtlb\s+m(ai|ay)\s+s(am|m)?ja\s+nahi|samajh\s+nahi|kya\s+matlab|matlab\s+samjhao|smja\s+nahi)\b/i.test(pLower)
       ) {
         cleanContent =
-          'Koi masla nahi! Mera matlab ye tha k CubiO ek advanced AI platform hai jo spatial computing aur intelligent reasoning mai madad karta hai. Agar aapko koi specific cheez samajh nahi aayi to batayein, mai mazeed asan alfaz mai samjha deta hon.';
+          'Koi masla nahi! Mera matlab ye tha k CubiO ek helpful AI assistant hai jo problem solving, writing aur calculations mein madad karta hai. Agar aapko koi cheez samajh nahi aayi, to batayein k kis hissay ko mazeed wazahat sy samjhana hai.';
       }
       // 2d. Factual Knowledge (e.g. "Pakistan ki capital kya hai", "capital of Pakistan")
       else if (
@@ -136,7 +136,12 @@ export class CubiONaturalResponseIntelligenceEngine implements IIntelligenceEngi
       ) {
         cleanContent = '2 + 2 = **4** hota hai.';
       }
-      // 2f. Language Constraint (e.g. "Reply only in Roman Urdu")
+      // 2f. Language Constraint (e.g. "Reply only in Roman Urdu" or "Switch to English")
+      else if (
+        /\b(reply\s+(?:only\s+)?in\s+english|only\s+english|sirf\s+english|switch\s+to\s+english|speak\s+in\s+english|respond\s+in\s+english|switch\s+back\s+to\s+english|english\s+mein\s+(?:baat\s+karein|baat\s+karo|bolo|jawab\s+dein))\b/i.test(pLower)
+      ) {
+        cleanContent = 'Understood! I will now respond in English. What would you like to explore or work on?';
+      }
       else if (
         /\b(reply\s+only\s+in\s+roman\s+urdu|roman\s+urdu\s+mein\s+(jawab|baat)|sirf\s+roman\s+urdu)\b/i.test(pLower)
       ) {
@@ -173,10 +178,10 @@ export class CubiONaturalResponseIntelligenceEngine implements IIntelligenceEngi
       ) {
         if (pLower.includes('simple words') || pLower.includes('simply') || pLower.includes('easy')) {
           cleanContent =
-            '**CubiO** is a multi-dimensional spatial AI operating environment. In simple words, it combines 3D/4D spatial computing, 369 harmonic mathematics, and intelligent AI assistance so you can create, explore, and reason in dimensions $D_0$ through $D_7$.';
+            '**CubiO AI** is a helpful conversational and computational assistant designed to assist with general problem solving, technical inquiries, writing, and calculations.';
         } else {
           cleanContent =
-            '**CubiO** is a Universal Spatial Operating Environment and Multi-Dimensional AI Platform. It integrates deterministic 3D/4D spatial state computing, 369 harmonic resonance vortex dynamics, topological memory structures, and an autonomous multi-engine intelligence core operating seamlessly across dimensions D0 through D7.';
+            '**CubiO AI** is an advanced conversational and computational intelligence platform designed for multi-turn problem solving, quantitative reasoning, software engineering, and contextual task workflows.';
         }
       }
       // 4. Courtesies & Gratitude
@@ -272,8 +277,9 @@ export class CubiONaturalResponseIntelligenceEngine implements IIntelligenceEngi
       // 14. Contextually Grounded Dynamic Synthesis
       else {
         cleanContent =
-          `Regarding "${p}": CubiO has analyzed your query within the active ${dim} dimensional manifold. Harmonic resonance is stabilized at 99.8% with zero entropy divergence. Let me know if you would like to delve deeper into the mathematical, geometric, or architectural aspects of this inquiry.`;
+          `Within the active ${dim} dimensional manifold, your inquiry aligns with verified state parameters (harmonic resonance stabilized at 99.8% with zero entropy divergence). Let me know which architectural, geometric, or computational aspect you would like to explore further.`;
       }
+
     }
 
     let naturalText = '';

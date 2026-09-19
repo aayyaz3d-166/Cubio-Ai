@@ -168,6 +168,17 @@ export class Native1MProductionService {
     return this.totalInferences;
   }
 
+  public getVerifiedStateHash(): string | null {
+    return this.verifiedStateHash;
+  }
+
+  public computeCurrentWeightsHash(): string {
+    if (!this.model) {
+      throw new Error('[SERVICE_NOT_READY] Model is not loaded');
+    }
+    return this.model.computeWeightsHash();
+  }
+
   /**
    * Initializes and restores the sealed Phase 16 1M model checkpoint into memory.
    * Strictly verifies file size, SHA-256 hash, and weights state hash before transitioning to READY.
