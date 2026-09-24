@@ -55,7 +55,32 @@ export interface ModelMetadataResponse {
   readonly models: RegisteredModelSummary[];
 }
 
-export function modelsHandler(_req: Request, res: Response): void {
+import { Phase28ChildModelRegistryManager, PublicModelDescriptor } from '../../integration/phase28ChildModelRegistryManager';
+
+export interface ChildModelsResponse {
+  readonly childId: string;
+  readonly models: PublicModelDescriptor[];
+  readonly defaultModelId: string;
+  readonly timestamp: string;
+}
+
+export function modelsHandler(req: Request, res: Response): void {
+  const childId = req.query.childId as string | undefined;
+
+  // If a childId is provided, return only public descriptors authorized for that child
+  if (childId) {
+    const childModelManager = Phase28ChildModelRegistryManager.getInstance();
+    const childModels = childModelManager.getModelsForChild(childId);
+    const policy = childModelManager.getChildPolicy(childId);
+    res.status(200).json({
+      childId,
+      models: childModels,
+      defaultModelId: policy?.defaultModelId || 'cubio-native-1m-production',
+      timestamp: new Date().toISOString(),
+    });
+    return;
+  }
+
   const native1mService = Native1MProductionService.getInstance();
   const is1MReady = native1mService.isReady();
   const registry = ModelRegistry.getInstance();

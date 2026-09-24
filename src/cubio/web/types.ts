@@ -110,4 +110,78 @@ export interface AccountResponse {
   readonly timestamp: string;
 }
 
-export type StudioActiveModal = 'none' | 'auth' | 'settings' | 'usage' | 'spatial' | 'account';
+export type StudioActiveModal = 'none' | 'auth' | 'settings' | 'usage' | 'spatial' | 'account' | 'admin';
+
+export interface AdminChildRecord {
+  readonly childId: string;
+  readonly agentName: string;
+  readonly semanticVersion: string;
+  readonly role: string;
+  readonly description: string;
+  readonly lifecycleState: 'REGISTERED' | 'ACTIVE' | 'DISABLED' | 'RETIRED';
+  readonly identityHash: string;
+  readonly capabilityProfile: {
+    readonly maxRequestTokens: number;
+    readonly maxTurnHistory: number;
+    readonly allowedCapabilities: readonly string[];
+    readonly offlineIsolatedOnly: boolean;
+    readonly isActuationBlocked: boolean;
+  };
+  readonly connectionState: {
+    readonly isConnected: boolean;
+    readonly activeWireVersion: string;
+    readonly lastHeartbeatTimestamp: string;
+    readonly totalRequestsDispatched: number;
+  };
+  readonly registeredAt: string;
+  readonly updatedAt: string;
+}
+
+export interface AdminPermissionsResponse {
+  readonly success: boolean;
+  readonly roles: readonly string[];
+  readonly matrix: Record<string, readonly string[]>;
+  readonly governancePolicies: {
+    readonly isActuationBlocked: boolean;
+    readonly isOfflineIsolated: boolean;
+    readonly maxTokenBudgetPerTurn: number;
+    readonly maxTurnRetention: number;
+    readonly crossChildTamperingBlocked: boolean;
+  };
+  readonly timestamp: string;
+}
+
+export interface AdminModelAvailabilityResponse {
+  readonly success: boolean;
+  readonly modelId: string;
+  readonly operationalState: string;
+  readonly isCertified: boolean;
+  readonly evaluationScore: number;
+  readonly isAvailable: boolean;
+  readonly timestamp: string;
+}
+
+export interface ChildModelDescriptor {
+  readonly id: string;
+  readonly name: string;
+  readonly version: string;
+  readonly capabilitySummary: string;
+  readonly status: 'ACTIVE' | 'SUSPENDED';
+  readonly isDefault: boolean;
+}
+
+export interface ChildModelsResponse {
+  readonly childId: string;
+  readonly models: ChildModelDescriptor[];
+  readonly defaultModelId: string;
+  readonly timestamp: string;
+}
+
+export interface ChildModelPolicy {
+  readonly childId: string;
+  readonly allowedModelIds: string[];
+  readonly defaultModelId: string;
+  readonly updatedAt: string;
+  readonly updatedBy: string;
+}
+

@@ -132,6 +132,28 @@ export const SCALED_5M_CONFIG: ParameterTierConfig = Object.freeze({
 });
 
 /**
+ * Scaled 5M Model V2 with Expanded 1,024-Token Vocabulary (Phase 52)
+ * Parameters: 4,845,056 across 69 tensors (100% trainable).
+ */
+export const SCALED_5M_V2_CONFIG: ParameterTierConfig = Object.freeze({
+  tierId: 'NATIVE_5M',
+  name: 'CUBiO Native Compact 5M V2 (Phase 52 Scaled Stage)',
+  description: 'Second parameter-scaled architecture with 1,024 vocab: 8 layers, d=256, h=8, FFN=512, T=128, 4,845,056 parameters.',
+  layerCount: 8,
+  hiddenDimension: 256,
+  attentionHeads: 8,
+  ffnDimension: 512,
+  vocabSize: 1024,
+  maxSequenceLength: 128,
+  spatialCells: 343,
+  epistemicClasses: 7,
+  expectedParameters: 4845056,
+  tensorCount: 69,
+  fp32WeightBytes: 4845056 * 4,
+  defaultLearningRate: 0.00025,
+});
+
+/**
  * Scaled 20M Model (Task 197 approved third and final planned scaling stage)
  * Layers expanded (8 -> 14), dimension expanded (256 -> 384), heads expanded (8 -> 12).
  * Parameters: 17,076,480 (3.74x vs Stage 2, 17.58x vs Stage 1, 77.88x vs Baseline).

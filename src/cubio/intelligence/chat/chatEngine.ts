@@ -54,7 +54,7 @@ import { CoreEngineResult } from '../core/coreEngineContract';
 import { ContextManager } from '../../inference/context/contextManager';
 import { MemoryService } from '../../virtual_data/memoryService';
 import { ExternalModelGuard } from '../../model/native_foundation/external_model_guard';
-import { OutputGuard } from '../../inference/safety/outputGuard';
+import { OutputGuard, OutputGuardVerdict } from '../../inference/safety/outputGuard';
 
 // Phase 21 Conversational Memory Intelligence
 import {
@@ -68,6 +68,7 @@ import {
 // Task 14: Canonical Memory Integration
 import { ChatMemoryIntegrationEngine } from '../../core/chatMemoryIntegration';
 import { Native1MProductionService } from '../../inference/native1mProductionService';
+import { NativeInferenceOutput, EpistemicStatus } from '../../model/native_foundation/native_model_types';
 
 export class CubiOChatEngine {
   private static instance: CubiOChatEngine | null = null;
@@ -352,9 +353,12 @@ export class CubiOChatEngine {
     });
 
     // 7b. Native 1M Sovereign Model Live Inference Pass
+    // Phase 45: Full autoregressive generation via generate() + evaluatePrompt for telemetry
     let native1mEvaluation: any = null;
+    let native1mGeneration: NativeInferenceOutput | null = null;
     const native1mService = Native1MProductionService.getInstance();
     if (native1mService.isReady()) {
+      // Telemetry-only evaluation pass (classification metadata)
       try {
         native1mEvaluation = native1mService.evaluatePrompt(
           request.message,
@@ -367,6 +371,41 @@ export class CubiOChatEngine {
             ChatErrorType.ACTUATION_PROHIBITED
           );
         }
+      }
+
+      // Phase 45: Primary generation pass — autoregressive full text output
+      // Circuit-breaker: 1500ms timeout, falls back to deterministic pipeline on expiry/error
+      try {
+        const GENERATION_TIMEOUT_MS = 1500;
+        const generationPromise = new Promise<NativeInferenceOutput>((resolve, reject) => {
+          try {
+            resolve(native1mService.generate(
+              request.message,
+              {
+                maxTokens: 96,
+                temperature: 0.7,
+                topK: 40,
+                enforceEpistemicLockout: true,
+              },
+              request.options?.spatialCellId
+            ));
+          } catch (e) {
+            reject(e);
+          }
+        });
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Native1M generation timeout')), GENERATION_TIMEOUT_MS)
+        );
+        native1mGeneration = await Promise.race([generationPromise, timeoutPromise]);
+      } catch (genErr: any) {
+        if (genErr?.name === 'ActuationBlockedError' || genErr?.message?.includes('actuation')) {
+          throw new ChatEngineError(
+            genErr?.message || 'Hardware actuation prohibited by Native 1M generation guard',
+            ChatErrorType.ACTUATION_PROHIBITED
+          );
+        }
+        // Non-actuation errors (timeout, model error) — fall back to deterministic pipeline silently
+        native1mGeneration = null;
       }
     }
 
@@ -388,7 +427,23 @@ export class CubiOChatEngine {
       activeConstraints: session.getActiveConstraints(),
     });
 
-    const responseText = qualityReport.correctedResponse || coreResult.text;
+    // Phase 45: Promote Native 1M autoregressive output as primary responseText
+    // Falls back to deterministic pipeline (qualityReport.correctedResponse || coreResult.text)
+    // if generation is null, empty, or epistemic status is UNKNOWN.
+    const deterministicText = qualityReport.correctedResponse || coreResult.text;
+    let responseText = deterministicText;
+    if (
+      native1mGeneration !== null &&
+      native1mGeneration.text &&
+      native1mGeneration.text.trim().length > 0 &&
+      native1mGeneration.epistemicStatus !== EpistemicStatus.UNKNOWN
+    ) {
+      const verdict: OutputGuardVerdict = OutputGuard.validateOutput(native1mGeneration.text);
+      if (verdict.isSafe && verdict.sanitizedText.trim().length > 0) {
+        responseText = verdict.sanitizedText;
+      }
+      // If OutputGuard rejects (isSafe=false or empty), responseText stays as deterministicText
+    }
 
     // Safety and OutputGuard checks on responseText
     OutputGuard.validateOutput(responseText);
@@ -457,11 +512,18 @@ export class CubiOChatEngine {
     const lower = message.toLowerCase();
     const isUncertainOrSpeculative = /\b(maybe|perhaps|possibly|probably|i\s+think|i\s+guess|i\s+suppose|i\s+believe|not\s+sure|might\s+be|could\s+be|would\s+be|what\s+if|suppose|assuming|hypothetically|wonder\s+if|unclear|doubt|shayad|lagta\s+hai|ho\s+sakta\s+hai|farz\s+karo|farz\s+karein|kya\s+pata|mumkin\s+hai|agar)\b/i.test(lower);
     const isInvertedQuestion = /^\s*(?:is|are|was|were|do|does|did|can|could|would|should|will|shall|may|might|am|has|have|had)\b/i.test(lower);
-    const isWhQuestion = /^\s*(?:what|which|who|whom|whose|where|when|why|how|kya|kaise|kaisay|kyun|kyu|kahan|kab|konsa|konsi|kon|kaun|kitna|kitni|kitnay)\b/i.test(lower);
+    const isWhQuestion = /^\s*(?:what|which|who|whom|whose|where|when|why|how|kya|kia|kea|kaise|kese|kaisay|kyun|kyu|kahan|kab|konsa|konsi|kon|kaun|kitna|kitni|kitnay)\b/i.test(lower);
     const hasQuestionMark = /\?/.test(message);
 
-    if (isUncertainOrSpeculative || isInvertedQuestion || isWhQuestion || hasQuestionMark) {
-      // Questions and uncertain statements cannot set constraints
+    // Colloquial remarks, moods, feelings (Roman Urdu or English) must never be committed as factual constraints
+    const isColloquialEmotionOrState =
+      /\b(?:mujhe|mujhy|mjhe|mjy|mujhko)\s+(?:bohot\s+|bohat\s+|kaafi\s+)?(?:thakawat|neend|bhook|pyas|gussa|dard|khushi)\s+(?:hai|hy|lagi)\b/i.test(lower) ||
+      /\b(?:mera|meri)\s+(?:mood|tabiyat|haal|zehn)\s+(?:theek|thk|thek|kharab|sahi)\s+(?:nahi|na)\s+(?:hai|hy)\b/i.test(lower) ||
+      /\b(?:aaj\s+)?(?:bohot|bohat|kaafi)?\s*(?:thak\s+gaya|thakawat|exhausted|tired|burned\s*out)\b/i.test(lower) ||
+      /\b(?:feeling\s+(?:tired|sleepy|down|exhausted|lonely|happy|sad|sick))\b/i.test(lower);
+
+    if (isUncertainOrSpeculative || isInvertedQuestion || isWhQuestion || hasQuestionMark || isColloquialEmotionOrState) {
+      // Questions, uncertain statements, and colloquial emotional remarks cannot set constraints
       return;
     }
 

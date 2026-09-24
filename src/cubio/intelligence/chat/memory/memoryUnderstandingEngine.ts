@@ -116,14 +116,21 @@ export class MemoryUnderstandingEngine {
     }
 
     // =========================================================================
-    // 2b. EPISTEMIC FILTER: INQUIRIES & UNCERTAIN/SPECULATIVE STATEMENTS
+    // 2b. EPISTEMIC FILTER: INQUIRIES, SPECULATIVE, & COLLOQUIAL EMOTIONAL REMARKS
     // =========================================================================
     const isUncertainOrSpeculative = /\b(maybe|perhaps|possibly|probably|i\s+think|i\s+guess|i\s+suppose|i\s+believe|not\s+sure|might\s+be|could\s+be|would\s+be|what\s+if|suppose|assuming|hypothetically|wonder\s+if|unclear|doubt|shayad|lagta\s+hai|ho\s+sakta\s+hai|farz\s+karo|farz\s+karein|kya\s+pata|mumkin\s+hai|agar)\b/i.test(lower);
     const isInvertedQuestion = /^\s*(?:is|are|was|were|do|does|did|can|could|would|should|will|shall|may|might|am|has|have|had)\b/i.test(lower);
-    const isWhQuestion = /^\s*(?:what|which|who|whom|whose|where|when|why|how|kya|kaise|kaisay|kyun|kyu|kahan|kab|konsa|konsi|kon|kaun|kitna|kitni|kitnay)\b/i.test(lower);
+    const isWhQuestion = /^\s*(?:what|which|who|whom|whose|where|when|why|how|kya|kia|kea|kaise|kese|kaisay|kyun|kyu|kahan|kab|konsa|konsi|kon|kaun|kitna|kitni|kitnay)\b/i.test(lower);
     const hasQuestionMark = /\?/.test(raw);
 
-    const isQuestionOrUncertain = (isInvertedQuestion || isWhQuestion || hasQuestionMark || isUncertainOrSpeculative) && !isExplicitStore;
+    // Colloquial, subjective emotional or physical states (Roman Urdu & English) that are NOT factual system constraints
+    const isColloquialEmotionOrState =
+      /\b(?:mujhe|mujhy|mjhe|mjy|mujhko)\s+(?:bohot\s+|bohat\s+|kaafi\s+)?(?:thakawat|neend|bhook|pyas|gussa|dard|khushi)\s+(?:hai|hy|lagi)\b/i.test(lower) ||
+      /\b(?:mera|meri)\s+(?:mood|tabiyat|haal|zehn)\s+(?:theek|thk|thek|kharab|sahi)\s+(?:nahi|na)\s+(?:hai|hy)\b/i.test(lower) ||
+      /\b(?:aaj\s+)?(?:bohot|bohat|kaafi)?\s*(?:thak\s+gaya|thakawat|exhausted|tired|burned\s*out)\b/i.test(lower) ||
+      /\b(?:feeling\s+(?:tired|sleepy|down|exhausted|lonely|happy|sad|sick))\b/i.test(lower);
+
+    const isQuestionOrUncertain = (isInvertedQuestion || isWhQuestion || hasQuestionMark || isUncertainOrSpeculative || isColloquialEmotionOrState) && !isExplicitStore;
 
     if (isQuestionOrUncertain && explicitAction === 'NONE') {
       return Object.freeze({
@@ -133,7 +140,7 @@ export class MemoryUnderstandingEngine {
         isCorrection: false,
         detectedContradictions: Object.freeze([]),
         isMemoryWorthy: false,
-        reasoning: 'Input is an inquiry or speculative/uncertain statement with zero verified factual commitments.',
+        reasoning: 'Input is an inquiry, colloquial emotional statement, or speculative/uncertain remark with zero verified factual commitments.',
       });
     }
 

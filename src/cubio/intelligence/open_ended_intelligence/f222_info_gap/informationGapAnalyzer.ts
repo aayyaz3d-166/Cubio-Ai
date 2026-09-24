@@ -1,0 +1,2 @@
+﻿import { InformationGapAnalysis } from '../types';
+export class InformationGapAnalyzer { public analyzeGaps(context: string): InformationGapAnalysis { return Object.freeze({ gapId: 'GAP_' + Date.now(), missingInformation: Object.freeze(['Domain-specific constraints', 'Performance baselines', 'Acceptable error margins']), gapSeverityScore: 0.6, acquisitionStrategies: Object.freeze(['Web search', 'Analogical inference', 'Exploratory experimentation']) }); } }

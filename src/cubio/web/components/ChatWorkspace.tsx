@@ -19,8 +19,9 @@ import {
   ShieldAlert,
   Clock,
   Terminal,
+  Cpu,
 } from 'lucide-react';
-import { ChatMessage, MessageStatus } from '../types';
+import { ChatMessage, MessageStatus, ChildModelDescriptor } from '../types';
 
 interface ChatWorkspaceProps {
   messages: ChatMessage[];
@@ -28,6 +29,9 @@ interface ChatWorkspaceProps {
   activeConversationTitle: string;
   onSendMessage: (text: string, existingRequestId?: string) => Promise<void>;
   onRetryMessage: (failedMessage: ChatMessage) => Promise<void>;
+  availableModels?: ChildModelDescriptor[];
+  selectedModelId?: string;
+  onSelectModel?: (modelId: string) => void;
 }
 
 // Helper to escape HTML characters and prevent XSS
@@ -161,6 +165,9 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
   activeConversationTitle,
   onSendMessage,
   onRetryMessage,
+  availableModels = [],
+  selectedModelId,
+  onSelectModel,
 }) => {
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -216,9 +223,37 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
     <div className="flex-1 flex flex-col h-full bg-zinc-950 overflow-hidden relative">
       {/* Top Conversation Header */}
       <div className="h-11 px-4 border-b border-zinc-800/80 bg-zinc-900/30 flex items-center justify-between shrink-0">
-        <span className="font-semibold text-xs text-zinc-300 truncate">
-          {activeConversationTitle || 'Conversation Workspace'}
-        </span>
+        <div className="flex items-center space-x-3 truncate">
+          <span className="font-semibold text-xs text-zinc-300 truncate">
+            {activeConversationTitle || 'Conversation Workspace'}
+          </span>
+
+          {/* Model Selector Dropdown (Task 452) */}
+          {availableModels && availableModels.length > 0 && (
+            <div className="flex items-center space-x-1.5 bg-zinc-900/80 border border-zinc-700/60 rounded-md px-2 py-0.5">
+              <Cpu className="w-3 h-3 text-indigo-400" />
+              <select
+                id="model-selector-dropdown"
+                value={selectedModelId || (availableModels[0]?.id ?? '')}
+                onChange={(e) => onSelectModel && onSelectModel(e.target.value)}
+                className="bg-transparent text-[11px] font-mono text-zinc-300 focus:outline-none cursor-pointer pr-1"
+                aria-label="Select Authorized Model"
+              >
+                {availableModels.map((m) => (
+                  <option
+                    key={m.id}
+                    value={m.id}
+                    disabled={m.status === 'SUSPENDED'}
+                    className="bg-zinc-900 text-zinc-200"
+                  >
+                    {m.name} {m.status === 'SUSPENDED' ? '(Suspended)' : ''} {m.isDefault ? '★' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
         <div className="text-[11px] text-zinc-500 font-mono">
           {messages.length} messages
         </div>

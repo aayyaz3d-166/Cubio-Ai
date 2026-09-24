@@ -618,6 +618,48 @@ export class CubiOCodingIntelligenceEngine {
             ? 'JavaScript string ko clean karke reverse equality check karta hai.'
             : 'Sanitizes string and compares with reversed representation.',
           keyPoints: ['Regex sanitization', 'O(n) time complexity'],
+          usageExample: isUrdu ? 'isPalindrome("racecar") -> true' : 'isPalindrome("racecar") -> true',
+        };
+      }
+    }
+
+    // 4a-0. Quicksort Algorithm Explanation & Code
+    if (/\b(quicksort|quick\s+sort)\b/i.test(descLower)) {
+      if (lang === 'PYTHON') {
+        const code = `def quicksort(arr: list[int]) -> list[int]:\n    """\n    Quicksort implementation using divide-and-conquer and pivot partitioning.\n    Average Time Complexity: O(n log n) | Space Complexity: O(log n)\n    """\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + middle + quicksort(right)\n\n# Example usage:\nnumbers = [3, 6, 8, 10, 1, 2, 1]\nprint(quicksort(numbers))  # [1, 1, 2, 3, 6, 8, 10]`;
+        return {
+          language: 'PYTHON',
+          taskName: isUrdu ? 'Quicksort Algorithm Implementation' : 'Quicksort Algorithm Implementation',
+          code,
+          explanation: isUrdu
+            ? 'Quicksort divide-and-conquer usool par kaam karta hai. Ye array se aik pivot muntakhib karta hai aur baqi elements ko pivot ke mutabiq partition karta hai. Iska average time complexity O(n log n) hota hai.'
+            : 'Quicksort employs a divide-and-conquer paradigm by selecting a pivot element and partitioning sub-arrays around it. Average time complexity is O(n log n).',
+          usageExample: isUrdu
+            ? 'quicksort([3, 6, 8, 10, 1, 2, 1]) -> [1, 1, 2, 3, 6, 8, 10]'
+            : 'quicksort([3, 6, 8, 10, 1, 2, 1]) -> [1, 1, 2, 3, 6, 8, 10]',
+          keyPoints: [
+            'Divide-and-conquer pivot partitioning',
+            'Average time complexity: O(n log n)',
+            'Worst case: O(n^2) when pivot selection is unbalanced',
+          ],
+        };
+      } else {
+        const code = `export function quicksort(arr: readonly number[]): number[] {\n  if (arr.length <= 1) return [...arr];\n  const pivot = arr[Math.floor(arr.length / 2)];\n  const left = arr.filter(x => x < pivot);\n  const middle = arr.filter(x => x === pivot);\n  const right = arr.filter(x => x > pivot);\n  return [...quicksort(left), ...middle, ...quicksort(right)];\n}\n\n// Example:\nconsole.log(quicksort([3, 6, 8, 10, 1, 2, 1])); // [1, 1, 2, 3, 6, 8, 10]`;
+        return {
+          language: lang,
+          taskName: isUrdu ? 'Quicksort Algorithm Implementation' : 'Quicksort Algorithm Implementation',
+          code,
+          explanation: isUrdu
+            ? 'TypeScript mein recursive quicksort algorithm jo pivot element ke gird partitioning karta hai.'
+            : 'Immutable, recursive Quicksort in TypeScript with pivot-based sub-array partitioning.',
+          usageExample: isUrdu
+            ? 'quicksort([3, 6, 8, 10, 1, 2, 1]) -> [1, 1, 2, 3, 6, 8, 10]'
+            : 'quicksort([3, 6, 8, 10, 1, 2, 1]) -> [1, 1, 2, 3, 6, 8, 10]',
+          keyPoints: [
+            'Pivot-based array partitioning',
+            'Average time complexity O(n log n)',
+            'Pure functional and immutable implementation',
+          ],
         };
       }
     }

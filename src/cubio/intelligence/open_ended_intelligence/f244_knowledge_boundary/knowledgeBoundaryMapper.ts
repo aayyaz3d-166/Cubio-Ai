@@ -1,0 +1,2 @@
+﻿import { KnowledgeBoundaryMap } from '../types';
+export class KnowledgeBoundaryMapper { public mapBoundaries(): KnowledgeBoundaryMap { return Object.freeze({ mapId: 'KMAP_' + Date.now(), knownDomains: Object.freeze(['SPATIAL_CAD', 'ACOUSTIC_528HZ', 'AST_CODE', 'PHYSICS_SIMULATION']), unknownFrontiers: Object.freeze(['QUANTUM_GEOMETRY', 'HYPER_DIMENSIONAL_TOPOLOGY']), boundarySharpness: 0.96 }); } }

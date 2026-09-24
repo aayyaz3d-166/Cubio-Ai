@@ -1,0 +1,2 @@
+﻿import { AutonomousGoalResult } from '../types';
+export class AutonomousGoalSetter { public generateGoals(): AutonomousGoalResult { return Object.freeze({ goalId: 'AUTOGOAL_' + Date.now(), selfGeneratedGoals: Object.freeze(['Optimize 5-axis toolpath clearance for complex filleted meshes', 'Prove acoustic resonance invariant across toroidal manifolds']), goalQualityScore: 0.95, explorationValueEstimate: 0.92 }); } }

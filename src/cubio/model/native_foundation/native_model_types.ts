@@ -317,6 +317,10 @@ export interface NativeInferenceOptions {
   readonly temperature?: number;
   readonly topK?: number;
   readonly enforceEpistemicLockout?: boolean;
+  readonly repetitionPenalty?: number; // e.g. 1.25 to discourage n-gram loops
+  readonly frequencyPenalty?: number; // e.g. 0.1 to penalize frequent tokens
+  readonly promptConditioningWeight?: number; // e.g. 1.2 to 1.5 to boost prompt-aligned tokens
+  readonly calibrateEpistemicRouting?: boolean; // calibrate conversational inquiry epistemic classification
 }
 
 export interface NativeInferenceOutput {

@@ -28,7 +28,7 @@ interface NavigationProps {
   isOnline: boolean;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
-  onOpenModal: (modal: 'auth' | 'settings' | 'usage' | 'spatial' | 'account') => void;
+  onOpenModal: (modal: 'auth' | 'settings' | 'usage' | 'spatial' | 'account' | 'admin') => void;
   onSignOut: () => void;
   onNavigateTo3DStudio?: () => void;
 }
@@ -156,6 +156,16 @@ export const Navigation: React.FC<NavigationProps> = ({
         {/* Auth / Account Area */}
         {session && session.isAuthenticated ? (
           <div className="flex items-center gap-2 pl-2 border-l border-zinc-800">
+            {session.role === 'admin' && (
+              <button
+                onClick={() => onOpenModal('admin')}
+                title="CUBiO Admin Panel (Authoritative Governance)"
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg text-indigo-200 hover:text-white bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/60 shadow-sm transition"
+              >
+                <Shield className="w-3.5 h-3.5 text-indigo-400" />
+                <span className="hidden sm:inline text-[11px]">Admin</span>
+              </button>
+            )}
             <button
               onClick={() => onOpenModal('account')}
               title="Account & Subscription"

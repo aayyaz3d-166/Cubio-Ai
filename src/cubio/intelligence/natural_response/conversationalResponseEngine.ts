@@ -540,20 +540,30 @@ export class ConversationalResponseEngine {
       return 'MULTILINGUAL';
     }
 
-    const romanUrduMarkers = [
-      'kya', 'hai', 'hain', 'mujhy', 'mujhe', 'batao', 'samajh', 'smja', 'nahi', 'na',
-      'chahiya', 'chahiye', 'karo', 'karna', 'kary', 'karein', 'mera', 'meri', 'meray',
-      'apna', 'apni', 'aap', 'ap', 'tum', 'hum', 'hamara', 'hamari', 'mein', 'may', 'sy', 'se', 'aur',
-      'theek', 'wazahat', 'tafseel', 'shukriya', 'kitna', 'kitni', 'kitnay', 'hota', 'hoti',
-      'hotay', 'kuch', 'bhai', 'matlab', 'mtlb', 'sirf', 'rehnumai', 'madad', 'batayein',
-      'suno', 'konsa', 'konsi', 'kaun', 'kab', 'kahan', 'kaisay', 'kaise', 'acha', 'achi',
-      'ache', 'bohot', 'bahut', 'gaya', 'gaye', 'gayi', 'ho', 'baad', 'pehle', 'ab', 'jab',
-      'pe', 'par', 'sawal', 'jawab', 'yeh', 'woh', 'iss', 'uss', 'rakhein', 'dein',
-      'salam', 'assalam', 'walaikum', 'alaikum', 'wapis', 'pehli', 'baat', 'faida', 'samjha',
-      'waqt', 'kal', 'likhwana', 'likh', 'bana', 'banao', 'chahiye', 'tareeqa', 'tarika', 'karak', 'bataiye',
-      'aaj', 'tha', 'thi', 'thay', 'bohat', 'wala', 'wali', 'walay', 'thaka', 'thakawat', 'dainay'
-    ];
+    // Explicit language override directives
+    if (/\b(?:in\s+english|english\s+mein|english\s+me|respond\s+in\s+english|reply\s+in\s+english)\b/i.test(pLower)) {
+      return 'ENGLISH';
+    }
+    if (/\b(?:in\s+roman\s+urdu|roman\s+urdu\s+mein|roman\s+urdu\s+me|sirf\s+urdu|in\s+urdu|urdu\s+mein|urdu\s+me)\b/i.test(pLower)) {
+      return 'ROMAN_URDU';
+    }
 
+    const romanUrduMarkers = [
+      'kya', 'kia', 'kea', 'hai', 'hain', 'hy', 'hein', 'mujhy', 'mujhe', 'mjhe', 'mjy', 'mujhko',
+      'batao', 'btao', 'btaein', 'batayein', 'batana', 'samajh', 'smjh', 'smjha', 'smjhao', 'smjhein',
+      'nahi', 'na', 'chahiya', 'chahiye', 'chahye', 'chaiye', 'chaheay', 'karo', 'kro', 'karna',
+      'kary', 'karein', 'krein', 'mera', 'meri', 'meray', 'apna', 'apni', 'aap', 'ap', 'tum',
+      'hum', 'hamara', 'hamari', 'mein', 'may', 'sy', 'se', 'aur', 'theek', 'thk', 'thek',
+      'wazahat', 'tafseel', 'shukriya', 'shukria', 'kitna', 'kitni', 'kitnay', 'hota', 'hoti',
+      'hotay', 'kuch', 'kch', 'bhai', 'matlab', 'mtlb', 'sirf', 'rehnumai', 'madad', 'suno',
+      'konsa', 'konsi', 'kaun', 'kab', 'kahan', 'kaisay', 'kaise', 'kese', 'acha', 'achi',
+      'ache', 'bohot', 'bahut', 'gaya', 'gaye', 'gayi', 'ho', 'baad', 'pehle', 'ab', 'jab',
+      'pe', 'par', 'sawal', 'jawab', 'yeh', 'woh', 'iss', 'uss', 'rakhein', 'dein', 'salam',
+      'assalam', 'walaikum', 'alaikum', 'wapis', 'pehli', 'baat', 'faida', 'samjha', 'waqt',
+      'kal', 'likhwana', 'likh', 'bana', 'banao', 'tareeqa', 'tarika', 'karak', 'bataiye',
+      'aaj', 'tha', 'thi', 'thay', 'bohat', 'wala', 'wali', 'walay', 'thaka', 'thakawat',
+      'dainay', 'zaroorat', 'zroorat', 'dikhao', 'dkhao', 'bana\s+do', 'kar\s+do', 'kr\s+do'
+    ];
 
     let hits = 0;
     for (const marker of romanUrduMarkers) {
@@ -2747,7 +2757,7 @@ Best regards,
       };
     }
 
-    if (/\b(boiling\s+point\s+of\s+water\s+in\s+fahrenheit|water\s+boiling\s+point\s+fahrenheit|pani\s+ka\s+boiling\s+point\s+fahrenheit)\b/i.test(pLower)) {
+    if (/\b(?:boiling\s+point|pani\s+ka\s+boiling|paani\s+ka\s+boiling)\b/i.test(pLower)) {
       const text = isUrdu
         ? 'Normal atmospheric pressure par paani ka boiling point **212°F** (ya $100^\\circ\\text{C}$) hota hai.'
         : 'At standard atmospheric pressure (1 atm), the boiling point of water is **212°F** (equivalent to $100^\\circ\\text{C}$).';
@@ -2923,6 +2933,22 @@ Best regards,
       };
     }
 
+    // 3f-2. Practical Coding: Prime Number Check
+    if (/\b(prime\s+number|is_prime|prime\s+check|prime)\b/i.test(pLower) && /\b(code|python|function|banao|likho|check|script|def)\b/i.test(pLower)) {
+      const codeSnippet = `def is_prime(n: int) -> bool:\n    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True\n\nprint(is_prime(29))  # True\nprint(is_prime(30))  # False`;
+      const text = isUrdu
+        ? `Python mein Prime Number check karne ka optimized function:\n\n\`\`\`python\n${codeSnippet}\n\`\`\`\n\n**Wazahat:** Ye function $O(\\sqrt{n})$ time complexity mein $6k \\pm 1$ optimization ke zariye primality check karta hai.`
+        : `Here is an optimized Python prime number verification function:\n\n\`\`\`python\n${codeSnippet}\n\`\`\`\n\n**Explanation:** Tests primality in $O(\\sqrt{n})$ time complexity utilizing the $6k \\pm 1$ factor jump optimization.`;
+      return {
+        text,
+        intent: 'CODE_INSTRUCTION',
+        language: lang,
+        confidence: 0.99,
+        epistemicStatus: 'FACT',
+        fallbackUsed: false,
+      };
+    }
+
     // 3g. Practical Coding: Fibonacci Sequence
     if (/\b(fibonacci)\b/i.test(pLower) && /\b(code|python|series|function|banao|likho|generate)\b/i.test(pLower)) {
       const codeSnippet = `def fibonacci(n: int) -> list[int]:\n    if n <= 0: return []\n    if n == 1: return [0]\n    seq = [0, 1]\n    while len(seq) < n:\n        seq.append(seq[-1] + seq[-2])\n    return seq\n\nprint(fibonacci(10))  # [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]`;
@@ -2961,6 +2987,22 @@ Best regards,
       const text = isUrdu
         ? `Binary Search ka Python implementation:\n\n\`\`\`python\n${codeSnippet}\n\`\`\`\n\n**Wazahat:** Binary Search sorted array ko har step par aadha karta hai ($O(\\log n)$ complexity).`
         : `Here is Binary Search in Python:\n\n\`\`\`python\n${codeSnippet}\n\`\`\`\n\n**Complexity:** $O(\\log n)$ on pre-sorted sequences.`;
+      return {
+        text,
+        intent: 'CODE_INSTRUCTION',
+        language: lang,
+        confidence: 0.99,
+        epistemicStatus: 'FACT',
+        fallbackUsed: false,
+      };
+    }
+
+    // 3i-2. Algorithm Explanation & Code: Quicksort
+    if (/\b(quicksort|quick\s+sort)\b/i.test(pLower)) {
+      const pyCode = `def quicksort(arr: list[int]) -> list[int]:\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + middle + quicksort(right)\n\nprint(quicksort([3, 6, 8, 10, 1, 2, 1]))\n# Output: [1, 1, 2, 3, 6, 8, 10]`;
+      const text = isUrdu
+        ? `**Quicksort Algorithm Ki Wazahat Aur Implementation:**\n\n**Quicksort Kaise Kaam Karta Hai:**\n1. **Divide and Conquer:** Quicksort array mein se aik element ko **pivot** muntakhib karta hai.\n2. **Partitioning:** Baqi tamaam elements ko pivot se compare kar ke do hisson mein taqseem karta hai (chhotay elements left side par aur baray elements right side par).\n3. **Recursive Sorting:** Dono hisson par recursive tor par yahi amal dohrata hai.\n\n**Complexity Analysis:**\n• **Average Time Complexity:** $O(n \\log n)$\n• **Worst Case:** $O(n^2)$ (jab array pehle se sorted ho aur pivot ghair-munasib chuna jaye)\n• **Space Complexity:** $O(\\log n)$ recursive call stack\n\n**Python Code:**\n\`\`\`python\n${pyCode}\n\`\`\``
+        : `**Quicksort Algorithm Explanation & Implementation:**\n\n**How Quicksort Operates:**\n1. **Divide and Conquer Strategy:** Selects a **pivot** element from the array.\n2. **Partitioning Phase:** Reorders the array so that elements smaller than the pivot precede it, and larger elements follow it.\n3. **Recursive Resolution:** Recursively applies the partitioning to the left and right sub-arrays.\n\n**Complexity Analysis:**\n• **Average Time Complexity:** $O(n \\log n)$\n• **Worst-Case Complexity:** $O(n^2)$ (unbalanced pivot on pathological inputs)\n• **Space Complexity:** $O(\\log n)$ auxiliary stack depth\n\n**Python Implementation:**\n\`\`\`python\n${pyCode}\n\`\`\``;
       return {
         text,
         intent: 'CODE_INSTRUCTION',

@@ -97,10 +97,22 @@ export class MvpV2UniversalChatManager {
    */
   public detectLanguage(input: string): DetectedLanguage {
     const text = input.toLowerCase();
+
+    // Explicit language override directives
+    if (/\b(?:in\s+english|english\s+mein|english\s+me|respond\s+in\s+english|reply\s+in\s+english)\b/i.test(text)) {
+      return 'ENGLISH';
+    }
+    if (/\b(?:in\s+roman\s+urdu|roman\s+urdu\s+mein|roman\s+urdu\s+me|sirf\s+urdu|in\s+urdu|urdu\s+mein|urdu\s+me)\b/i.test(text)) {
+      return 'ROMAN_URDU';
+    }
+
     const romanUrduKeywords = [
-      'kya', 'hai', 'kaise', 'mujhe', 'batao', 'chahiye', 'shukriya', 'aap', 'kaun',
-      'theek', 'hain', 'mein', 'hum', 'samjhao', 'karein', 'hoga', 'mera', 'meri',
-      'karo', 'kar do', 'suno', 'zaroorat', 'masla', 'hal'
+      'kya', 'kia', 'kea', 'hai', 'hain', 'hy', 'hein', 'kaise', 'kese', 'kaisay',
+      'mujhe', 'mujhy', 'mjhe', 'mjy', 'mujhko', 'batao', 'btao', 'btaein', 'batayein',
+      'chahiye', 'chahye', 'chahiya', 'chaiye', 'shukriya', 'shukria', 'aap', 'ap',
+      'kaun', 'theek', 'thk', 'thek', 'mein', 'me', 'hum', 'samjhao', 'smjhao', 'smjh',
+      'karein', 'krein', 'hoga', 'mera', 'meri', 'meray', 'karo', 'kro', 'kar do', 'kr do',
+      'suno', 'zaroorat', 'zroorat', 'masla', 'hal', 'dikhao', 'dkhao', 'bhi', 'b', 'bana'
     ];
 
     const tokens = text.split(/\s+/).map(t => t.replace(/[^a-z0-9]/g, ''));

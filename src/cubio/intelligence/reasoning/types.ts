@@ -68,7 +68,12 @@ export type StructuredReasoningDomain =
   | 'STEP_BY_STEP_MATH'
   | 'COMPARISON'
   | 'TROUBLESHOOTING'
-  | 'DEDUCTION';
+  | 'DEDUCTION'
+  | 'CONTRADICTION_DETECTION'
+  | 'CAUSAL_RELATIONAL_REASONING'
+  | 'SYMBOLIC_MATHEMATICAL'
+  | 'TECHNICAL_PROBLEM_SOLVING'
+  | 'SELF_CORRECTION_VERIFICATION';
 
 export interface StructuredReasoningRequest {
   readonly goal: string;

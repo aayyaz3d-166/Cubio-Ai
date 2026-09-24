@@ -9,7 +9,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { defaultApiClient, CubiOApiClient } from './api/apiClient';
 import { authService, AuthService } from './api/authApi';
-import { sendChatMessage } from './api/chatApi';
+import { sendChatMessage, fetchChildAllowedModels } from './api/chatApi';
 import { fetchHealth, fetchReadiness, fetchModels } from './api/healthApi';
 import { Navigation } from './components/Navigation';
 import { ConversationSidebar } from './components/ConversationSidebar';
@@ -19,6 +19,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { UsageModal } from './components/UsageModal';
 import { AuthModal } from './components/AuthModal';
 import { AccountModal } from './components/AccountModal';
+import { AdminPanelModal } from './components/AdminPanelModal';
 import {
   ChatMessage,
   ConversationSummary,
@@ -26,6 +27,7 @@ import {
   SystemModelStatus,
   SystemReadiness,
   StudioActiveModal,
+  ChildModelDescriptor,
 } from './types';
 
 const CONVERSATIONS_STORAGE_KEY = 'cubio_web_studio_conversations';
@@ -54,6 +56,11 @@ export const CubiOWebStudioApp: React.FC<CubiOWebStudioAppProps> = ({
   const [isOnline, setIsOnline] = useState<boolean>(() => {
     return typeof navigator !== 'undefined' ? navigator.onLine : true;
   });
+
+  // Child-scoped Allowed Models State (Task 452)
+  const [activeChildId, setActiveChildId] = useState<string>('cubio-child-mvp');
+  const [availableModels, setAvailableModels] = useState<ChildModelDescriptor[]>([]);
+  const [selectedModelId, setSelectedModelId] = useState<string>('cubio-native-1m-production');
 
   // UI Navigation State
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -130,16 +137,24 @@ export const CubiOWebStudioApp: React.FC<CubiOWebStudioAppProps> = ({
   // System Polling for health and model status
   const refreshSystemStatus = useCallback(async () => {
     try {
-      const [rStatus, mStatus] = await Promise.all([
+      const [rStatus, mStatus, childModelsRes] = await Promise.all([
         fetchReadiness(client).catch(() => null),
         fetchModels(client).catch(() => null),
+        fetchChildAllowedModels(client, activeChildId).catch(() => null),
       ]);
       if (rStatus) setReadiness(rStatus);
       if (mStatus) setModelStatus(mStatus);
+      if (childModelsRes && childModelsRes.models) {
+        setAvailableModels(childModelsRes.models);
+        // If current selection is not in allowed models or is invalid, select default
+        if (!childModelsRes.models.some((m: any) => m.id === selectedModelId)) {
+          setSelectedModelId(childModelsRes.defaultModelId || childModelsRes.models[0]?.id || 'cubio-native-1m-production');
+        }
+      }
     } catch {
       /* non-fatal */
     }
-  }, [client]);
+  }, [client, activeChildId, selectedModelId]);
 
   useEffect(() => {
     refreshSystemStatus();
@@ -259,6 +274,10 @@ export const CubiOWebStudioApp: React.FC<CubiOWebStudioAppProps> = ({
         requestId,
         conversationId: convId,
         message: text,
+        options: {
+          childId: activeChildId,
+          modelId: selectedModelId,
+        },
       });
 
       const assistantMessage: ChatMessage = {
@@ -367,6 +386,9 @@ export const CubiOWebStudioApp: React.FC<CubiOWebStudioAppProps> = ({
           activeConversationTitle={activeConv?.title || ''}
           onSendMessage={handleSendMessage}
           onRetryMessage={handleRetryMessage}
+          availableModels={availableModels}
+          selectedModelId={selectedModelId}
+          onSelectModel={(mId) => setSelectedModelId(mId)}
         />
       </div>
 
@@ -402,6 +424,13 @@ export const CubiOWebStudioApp: React.FC<CubiOWebStudioAppProps> = ({
         client={client}
         onClose={() => setActiveModal('none')}
         onSignOut={handleSignOut}
+      />
+
+      <AdminPanelModal
+        isOpen={activeModal === 'admin'}
+        client={client}
+        session={session}
+        onClose={() => setActiveModal('none')}
       />
     </div>
   );

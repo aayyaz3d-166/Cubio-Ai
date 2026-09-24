@@ -23,6 +23,7 @@ import { UsageLedger } from '../billing/usageLedger';
 import { SubscriptionManager } from '../billing/subscriptionManager';
 import { PlanRegistry } from '../billing/planRegistry';
 import { Native1MProductionService } from '../../inference/native1mProductionService';
+import { Phase28ChildModelRegistryManager } from '../../integration/phase28ChildModelRegistryManager';
 
 export interface PublicChatApiResponse {
   readonly requestId: string;
@@ -42,6 +43,9 @@ export interface PublicChatApiResponse {
     readonly isActuationBlocked: boolean;
     readonly isOfflineIsolated: boolean;
     readonly memoryReferences?: readonly string[];
+    readonly selectedModelId?: string;
+    readonly fallbackApplied?: boolean;
+    readonly childId?: string;
   };
   readonly timestamp: string;
 }
@@ -357,6 +361,29 @@ export async function chatHandler(req: Request, res: Response): Promise<void> {
     return;
   }
 
+  // 4b. Child Agent & Model Selection Validation (Phase 28 Task 452)
+  const childId: string = (body.options && body.options.childId) || 'cubio-child-mvp';
+  const requestedModelId: string | undefined = body.options && body.options.modelId;
+  const childModelManager = Phase28ChildModelRegistryManager.getInstance();
+  const modelValidation = childModelManager.validateAndResolveModel(childId, requestedModelId);
+
+  if (!modelValidation.valid) {
+    // Release in-flight reservation
+    await usageLedger.releaseReservation(resolvedTenantId, requestId);
+    const statusCode = modelValidation.errorCode === 'UNAUTHORIZED_MODEL' ? 403 : 400;
+    res.status(statusCode).json({
+      error: modelValidation.errorCode === 'UNAUTHORIZED_MODEL' ? 'Forbidden' : 'Bad Request',
+      code: modelValidation.errorCode || 'INVALID_MODEL_SELECTION',
+      detail: modelValidation.reason || 'Requested model selection is not permitted.',
+      requestId,
+      timestamp: new Date().toISOString(),
+    } as ApiErrorResponse);
+    return;
+  }
+
+  const effectiveModelId = modelValidation.selectedModelId;
+  const fallbackApplied = modelValidation.fallbackApplied;
+
   // 5. Safe Request Dispatch to Chat & Context Engine
   try {
     const engineRequest: ChatRequest = {
@@ -408,6 +435,9 @@ export async function chatHandler(req: Request, res: Response): Promise<void> {
         isActuationBlocked: IS_ACTUATION_BLOCKED,
         isOfflineIsolated: OFFLINE_ISOLATED,
         memoryReferences: (chatResponse as any).turn?.memoryReferences || [],
+        selectedModelId: effectiveModelId,
+        fallbackApplied,
+        childId,
       },
       timestamp: new Date(chatResponse.timestamp).toISOString(),
     };

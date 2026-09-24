@@ -18,6 +18,8 @@ export interface ChatApiRequest {
     readonly preferredStrategy?: string;
     readonly temperature?: number;
     readonly timeoutMs?: number;
+    readonly modelId?: string;
+    readonly childId?: string;
   };
 }
 
@@ -38,6 +40,9 @@ export interface ChatApiResponse {
     readonly mode: string;
     readonly isActuationBlocked: boolean;
     readonly isOfflineIsolated: boolean;
+    readonly selectedModelId?: string;
+    readonly fallbackApplied?: boolean;
+    readonly childId?: string;
   };
   readonly timestamp: string;
 }
@@ -51,3 +56,11 @@ export async function sendChatMessage(
     body: request,
   });
 }
+
+export async function fetchChildAllowedModels(
+  client: CubiOApiClient,
+  childId: string
+): Promise<{ childId: string; models: any[]; defaultModelId: string; timestamp: string }> {
+  return client.request(`/models?childId=${encodeURIComponent(childId)}`);
+}
+

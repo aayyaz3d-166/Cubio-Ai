@@ -23,6 +23,15 @@ import {
   adminAccountStatusHandler,
 } from './billingHandler';
 import {
+  adminListChildrenHandler,
+  adminChildLifecycleHandler,
+  adminInstallChildHandler,
+  adminPermissionsHandler,
+  adminModelAvailabilityHandler,
+  adminChildModelsHandler,
+  adminUpdateChildModelsHandler,
+} from './adminChildGovernanceHandler';
+import {
   queryHandler,
   memoryHandler,
   contextHandler,
@@ -61,6 +70,13 @@ export function createV1Router(): Router {
   router.post('/admin/subscription', requireAuth(), requireRole('admin'), adminSubscriptionHandler);
   router.post('/admin/usage/correct', requireAuth(), requireRole('admin'), adminUsageCorrectionHandler);
   router.post('/admin/account/status', requireAuth(), requireRole('admin'), adminAccountStatusHandler);
+  router.get('/admin/children', requireAuth(), requireRole('admin'), adminListChildrenHandler);
+  router.post('/admin/children/lifecycle', requireAuth(), requireRole('admin'), adminChildLifecycleHandler);
+  router.post('/admin/children/install', requireAuth(), requireRole('admin'), adminInstallChildHandler);
+  router.get('/admin/permissions', requireAuth(), requireRole('admin'), adminPermissionsHandler);
+  router.post('/admin/models/availability', requireAuth(), requireRole('admin'), adminModelAvailabilityHandler);
+  router.get('/admin/children/models', requireAuth(), requireRole('admin'), adminChildModelsHandler);
+  router.post('/admin/children/models', requireAuth(), requireRole('admin'), adminUpdateChildModelsHandler);
 
   return router;
 }

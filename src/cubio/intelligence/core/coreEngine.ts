@@ -59,6 +59,8 @@ import { CubiOUniversalToolEngine } from '../universal/tools/toolEngine';
 import { OutputGuard } from '../../inference/safety/outputGuard';
 import { ExternalModelGuard } from '../../model/native_foundation/external_model_guard';
 import { EpistemicStatus } from '../../model/native_foundation/native_model_types';
+// Phase 45: Native 1M readiness check for strategy promotion
+import { Native1MProductionService } from '../../inference/native1mProductionService';
 
 export class CubiOAICoreEngine {
   private static instance: CubiOAICoreEngine | null = null;
@@ -72,7 +74,7 @@ export class CubiOAICoreEngine {
   private readonly toolEngine: CubiOUniversalToolEngine;
 
   private totalExecutions = 0;
-  private productionMode: 'NEURAL_SHADOW' = 'NEURAL_SHADOW';
+  private productionMode: string = 'NEURAL_SHADOW';
 
   private constructor() {
     // Ensure deterministic authoritative pipeline is active
@@ -324,6 +326,12 @@ export class CubiOAICoreEngine {
       strategy = 'TOOL_ASSISTED';
     } else if (domain === 'SPATIAL') {
       strategy = 'NEURAL_SHADOW';
+    } else if (
+      // Phase 45: Promote to NEURAL_WITH_FALLBACK when Native 1M is ready for conversational/general queries
+      Native1MProductionService.getInstance().isReady() &&
+      (domain === 'CONVERSATIONAL' || domain === 'HYBRID')
+    ) {
+      strategy = 'NEURAL_WITH_FALLBACK';
     }
 
     // =========================================================================

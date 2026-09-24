@@ -2,10 +2,10 @@
   "manifestTitle": "CUBiO AI MVP Version 2 Production Cryptographic Manifest",
   "lifecycleStatus": "MVP_V2_PRODUCTION_MANIFEST_SEALED",
   "releaseVersion": "2.0.0-PROD",
-  "generatedTimestamp": "2026-09-19T00:17:56.671Z",
-  "totalEntries": 1799,
-  "totalSizeBytes": 16133473,
-  "manifestSha256": "3ecffd938e82b4c94079a4ce46a7790875baedad23ec5d0d8e82987b959eeed2",
+  "generatedTimestamp": "2026-09-24T16:25:44.492Z",
+  "totalEntries": 1808,
+  "totalSizeBytes": 16447017,
+  "manifestSha256": "983384b83d6d596f31b0708eb007454089bdad4efb0837837a8f4fa201946c81",
   "protectedAssetsVerifiedCount": 6,
   "entries": [
     {
@@ -577,6 +577,14 @@
       "integrationRole": "API v1 Route & Security Layer"
     },
     {
+      "canonicalPath": "src/cubio/api/v1/adminChildGovernanceHandler.ts",
+      "sizeBytes": 17025,
+      "sha256": "d3f03834e81e172e786e6880f42f7a3546d058462f37891fa925d9c59f0d028f",
+      "isProtectedAsset": false,
+      "category": "API_SUBSYSTEM",
+      "integrationRole": "API v1 Route & Security Layer"
+    },
+    {
       "canonicalPath": "src/cubio/api/v1/billingHandler.ts",
       "sizeBytes": 9912,
       "sha256": "2976453a16cd1f22cf539ad52dc9815a1cd5384b475cfa5a08ab0f968f87afb3",
@@ -586,8 +594,8 @@
     },
     {
       "canonicalPath": "src/cubio/api/v1/chatHandler.ts",
-      "sizeBytes": 16395,
-      "sha256": "b02adfbcef2507fb9d02ec4ff91523744b4d5ec711a3b2f52e431f471f225a13",
+      "sizeBytes": 17844,
+      "sha256": "0b19d24548bc2a9c544caaf2b2d78854fefad5132119abdde9500037e3e966c8",
       "isProtectedAsset": false,
       "category": "API_SUBSYSTEM",
       "integrationRole": "API v1 Route & Security Layer"
@@ -602,8 +610,8 @@
     },
     {
       "canonicalPath": "src/cubio/api/v1/modelsHandler.ts",
-      "sizeBytes": 6185,
-      "sha256": "dff9b2b2e8819e2015aa642e7a36e5eba86a6a32dc10e76395639baf04f9075b",
+      "sizeBytes": 7080,
+      "sha256": "208040232a2b721d78fe7ba66d42330fd6a553f6ee1f9579cc1a6223a9aff684",
       "isProtectedAsset": false,
       "category": "API_SUBSYSTEM",
       "integrationRole": "API v1 Route & Security Layer"
@@ -618,8 +626,8 @@
     },
     {
       "canonicalPath": "src/cubio/api/v1/router.ts",
-      "sizeBytes": 2512,
-      "sha256": "5aa347ecf62e0898b76ebaabd49cea405c9a0bc0c8b8b280200e4feedcd6cc0c",
+      "sizeBytes": 3499,
+      "sha256": "1d1da4796ffb65c2079a9a44625c8d12859f23d2f79633a94d83b874abad2723",
       "isProtectedAsset": false,
       "category": "API_SUBSYSTEM",
       "integrationRole": "API v1 Route & Security Layer"
@@ -1122,8 +1130,8 @@
     },
     {
       "canonicalPath": "src/cubio/integration/mvpV2UniversalChatManager.ts",
-      "sizeBytes": 10228,
-      "sha256": "42a77c2959039ec68170dbb4a6524b47583fbfd655e4ad06473e262b05f44a74",
+      "sizeBytes": 10888,
+      "sha256": "c3a1d52a1919fa22c7988ffd3f57327fa064ced8f30281b9172056f09ee7a129",
       "isProtectedAsset": false,
       "category": "INTEGRATION_CORE",
       "integrationRole": "MVP Version 2 Production Integration Subsystem"
@@ -1132,6 +1140,54 @@
       "canonicalPath": "src/cubio/integration/mvpV2VdbIntegrationGuard.ts",
       "sizeBytes": 6106,
       "sha256": "d6c4bfe9695697e4101638d7d6aea39015f88a7bfa0196ed263eaa6f46eb51dd",
+      "isProtectedAsset": false,
+      "category": "INTEGRATION_CORE",
+      "integrationRole": "MVP Version 2 Production Integration Subsystem"
+    },
+    {
+      "canonicalPath": "src/cubio/integration/phase28ChildAgentIdentityRegistry.ts",
+      "sizeBytes": 10450,
+      "sha256": "9c79e4b44cc682da3f8adeb24fa578e7b07439ded7b3bcd6c82f3d6789874ae1",
+      "isProtectedAsset": false,
+      "category": "INTEGRATION_CORE",
+      "integrationRole": "MVP Version 2 Production Integration Subsystem"
+    },
+    {
+      "canonicalPath": "src/cubio/integration/phase28ChildInstallationManager.ts",
+      "sizeBytes": 12589,
+      "sha256": "bf04e17fa318ba8eb1aac961ba308a0cd0e4b98f5a7ba9851968b64aa4d66184",
+      "isProtectedAsset": false,
+      "category": "INTEGRATION_CORE",
+      "integrationRole": "MVP Version 2 Production Integration Subsystem"
+    },
+    {
+      "canonicalPath": "src/cubio/integration/phase28ChildModelRegistryManager.ts",
+      "sizeBytes": 11312,
+      "sha256": "d33e6eb6ac08cad4fe7de175f5690be8baeca53ae586ccd66a45dfc72e7c41a3",
+      "isProtectedAsset": false,
+      "category": "INTEGRATION_CORE",
+      "integrationRole": "MVP Version 2 Production Integration Subsystem"
+    },
+    {
+      "canonicalPath": "src/cubio/integration/phase28CoreChildIntelligenceBridge.ts",
+      "sizeBytes": 14161,
+      "sha256": "b909c793efbda93590b5c74bc029d2503c1125e50ecaa0f3c6f6e1858d5fb3ef",
+      "isProtectedAsset": false,
+      "category": "INTEGRATION_CORE",
+      "integrationRole": "MVP Version 2 Production Integration Subsystem"
+    },
+    {
+      "canonicalPath": "src/cubio/integration/phase28MvpChildLifecycleManager.ts",
+      "sizeBytes": 11170,
+      "sha256": "913939a7bee12ca385b8f9107ae68a69b76a4f555f1a0ad9ee26c5eec71801bf",
+      "isProtectedAsset": false,
+      "category": "INTEGRATION_CORE",
+      "integrationRole": "MVP Version 2 Production Integration Subsystem"
+    },
+    {
+      "canonicalPath": "src/cubio/integration/phase28SecureCoreWire.ts",
+      "sizeBytes": 15382,
+      "sha256": "823a38107a245f7e5d3bd1ae90ad63334293af2ac7cac502783af26b87fe4c61",
       "isProtectedAsset": false,
       "category": "INTEGRATION_CORE",
       "integrationRole": "MVP Version 2 Production Integration Subsystem"
@@ -1418,8 +1474,8 @@
     },
     {
       "canonicalPath": "src/cubio/intelligence/chat/chatEngine.ts",
-      "sizeBytes": 21248,
-      "sha256": "5b39909143861fa00d27e015207c12e09487cd067303d17509d09efee16d0491",
+      "sizeBytes": 24611,
+      "sha256": "363c373c893c19c0509b31e9df72749549f2afe26b67933b24262ad80561e44f",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -1498,16 +1554,16 @@
     },
     {
       "canonicalPath": "src/cubio/intelligence/chat/memory/memoryUnderstandingEngine.ts",
-      "sizeBytes": 17190,
-      "sha256": "540669c8be1fa89b3a965956498b5e3bcb7d30c52a7c6b6e959e566804b8380f",
+      "sizeBytes": 17937,
+      "sha256": "b7839eefe3e2a880eee77edb4690a0ea7664f0f0f6d891cc1ab478c655273b6b",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
     },
     {
       "canonicalPath": "src/cubio/intelligence/coding/codingEngine.ts",
-      "sizeBytes": 52876,
-      "sha256": "055697cbaef89af56067f7e5d2726aed6b563859792b110ec22c425ba996e3b2",
+      "sizeBytes": 56019,
+      "sha256": "bc1b0bf8b01bcc9a3c8b3ba66faf49037a0a797591dcd5914457b8e83f4fa688",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -1610,8 +1666,8 @@
     },
     {
       "canonicalPath": "src/cubio/intelligence/core/coreEngine.ts",
-      "sizeBytes": 25583,
-      "sha256": "f25aa3d2ff10e7bb3224a6b03853e9122a52157294aa97d176040a66021c905a",
+      "sizeBytes": 26016,
+      "sha256": "5365286100f794042177b5b88a87563d9e87b067fa2ff00a77fc02de30cdf97d",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -2026,8 +2082,8 @@
     },
     {
       "canonicalPath": "src/cubio/intelligence/natural_response/conversationalResponseEngine.ts",
-      "sizeBytes": 269683,
-      "sha256": "839ed80ec139feb977651bdcbd35018aff95c463efb981ce1184694ade781eb9",
+      "sizeBytes": 273726,
+      "sha256": "fea12d2300d2f05a489550f73580afe017c8efb3b6c39d3603d57535f91f4598",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -2122,8 +2178,8 @@
     },
     {
       "canonicalPath": "src/cubio/intelligence/pipeline/calibratedAuthoritativePipeline.ts",
-      "sizeBytes": 213618,
-      "sha256": "1705c35d13ac2cb34157e159ad3a6ac3435134cb9378d437f49a3204fee8817f",
+      "sizeBytes": 331752,
+      "sha256": "ce1e276a2ed2b8eb0aa38d0e782a718de1dcbbe45aa94a5e4ee6f01ae52bb17d",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -2210,16 +2266,16 @@
     },
     {
       "canonicalPath": "src/cubio/intelligence/reasoning/reasoningEngine.ts",
-      "sizeBytes": 25292,
-      "sha256": "0c6f7b08e528d6f4c383ab56c1559ab1704530d7f64a9c1fa3f04fba11fce0e8",
+      "sizeBytes": 50499,
+      "sha256": "4644e59373f04e71923de21b89989e03afc19558ca913768b0d46a4fbaf4114b",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
     },
     {
       "canonicalPath": "src/cubio/intelligence/reasoning/types.ts",
-      "sizeBytes": 2817,
-      "sha256": "4022c60f5d9f24ce2a12dc2f824ed4ab0fe048a63544158110909e9062a0fbb5",
+      "sizeBytes": 2976,
+      "sha256": "e79dc4c06f3796bfeaf704d8c4ea5903eaada883f7064aee9bac935b551cd4f2",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -3154,8 +3210,8 @@
     },
     {
       "canonicalPath": "src/cubio/model/native_foundation/native_inference_engine.ts",
-      "sizeBytes": 6495,
-      "sha256": "04b938d9ae0fe331300c9e9f4aea3f86ad8d13628db40e104d8f956e7c4b2bf0",
+      "sizeBytes": 13887,
+      "sha256": "b7908e10ede7153ac722eab5f7ab17cb56046beb55dd3fa6fa1e4554c6f9d1fe",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -3178,8 +3234,8 @@
     },
     {
       "canonicalPath": "src/cubio/model/native_foundation/native_model_types.ts",
-      "sizeBytes": 9003,
-      "sha256": "ebc24dd8d5bd9bc50020c64329d64987a109a3c5b5e685fe6ced079a97aadf5d",
+      "sizeBytes": 9365,
+      "sha256": "16472068c0ad3994583d47bfd2e14f5924649de699974551202bcdec4c9d46d4",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -3242,8 +3298,8 @@
     },
     {
       "canonicalPath": "src/cubio/scaling/parameterScalingEngine.ts",
-      "sizeBytes": 44359,
-      "sha256": "2f0dac4cdbfdd3ca0a7b020fa3047e3e6605ba4f929e6bd65da3ca7a9d6fb156",
+      "sizeBytes": 45079,
+      "sha256": "654cb562e7ab8e72f1696d1d685028fea970b2fd5cae44765c049c9d9125107a",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -3441,6 +3497,14 @@
       "integrationRole": "Application Component"
     },
     {
+      "canonicalPath": "src/cubio/web/api/adminApi.ts",
+      "sizeBytes": 4044,
+      "sha256": "eeebc54d778e9a4f258b695c7f16d945ea173a66dc803f7971045b3f7ae6fc8a",
+      "isProtectedAsset": false,
+      "category": "FRONTEND_UI",
+      "integrationRole": "Application Component"
+    },
+    {
       "canonicalPath": "src/cubio/web/api/apiClient.ts",
       "sizeBytes": 5538,
       "sha256": "666dfbfa760a880cc7f94949d45b41e8cac728bf97d9460e3fe58b8a5e3945b2",
@@ -3466,8 +3530,8 @@
     },
     {
       "canonicalPath": "src/cubio/web/api/chatApi.ts",
-      "sizeBytes": 1352,
-      "sha256": "09858a72daf720ecbcf3ff39fd027e58f4f66f902b64ee4fb283e5e8ae572429",
+      "sizeBytes": 1786,
+      "sha256": "98d35e68088c781928a17027fcf53fe4cf4c804e41a4eecb077d159342d8c66a",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -3497,6 +3561,14 @@
       "integrationRole": "Application Component"
     },
     {
+      "canonicalPath": "src/cubio/web/components/AdminPanelModal.tsx",
+      "sizeBytes": 43647,
+      "sha256": "2892786c38177abb56fc5fca78127565ddc64110755a1089b7329b356e703431",
+      "isProtectedAsset": false,
+      "category": "FRONTEND_UI",
+      "integrationRole": "Application Component"
+    },
+    {
       "canonicalPath": "src/cubio/web/components/AuthModal.tsx",
       "sizeBytes": 5241,
       "sha256": "cf7df760db460bb7dd41ebb542f91006bc0f19b38cc7c0d1fa26b161d010493a",
@@ -3506,8 +3578,8 @@
     },
     {
       "canonicalPath": "src/cubio/web/components/ChatWorkspace.tsx",
-      "sizeBytes": 16563,
-      "sha256": "18eccfe4c855362b357837be61ecc52eb79be8aa389487685ff96176b76b71af",
+      "sizeBytes": 18039,
+      "sha256": "0bda8d3b6bcdbdd020facf9a9b8b293c54fe0121e8b31daed562bdeb00619579",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -3522,8 +3594,8 @@
     },
     {
       "canonicalPath": "src/cubio/web/components/Navigation.tsx",
-      "sizeBytes": 7598,
-      "sha256": "1cd5e79dcee2e4d77306c504c156004dae266d21ad2b3e4e383a2fd691b3da33",
+      "sizeBytes": 8211,
+      "sha256": "c293da685df4c5eeb5e4b4131d0fd2e25bd148cf3a32fc4997b2c5b21eb6dc3e",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -3554,8 +3626,8 @@
     },
     {
       "canonicalPath": "src/cubio/web/CubiOWebStudioApp.tsx",
-      "sizeBytes": 13360,
-      "sha256": "9d3dcf1d930e7e0e7d5b2d7da43d3e3231f8c6f6fea1bac7b039a4a9d2046f16",
+      "sizeBytes": 14742,
+      "sha256": "d409bbb03e7c2836e06254792e34d292948a6b320c9b36b1d236f8aa154d50d1",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
@@ -3570,8 +3642,8 @@
     },
     {
       "canonicalPath": "src/cubio/web/types.ts",
-      "sizeBytes": 3202,
-      "sha256": "8d533116da8f75c8df51f20d6331d055440d6714d790d1ff84e775c428dc62e1",
+      "sizeBytes": 5367,
+      "sha256": "794c012d093e464167d93d21ddcb1469debbfde730b52912517631a835fad4b5",
       "isProtectedAsset": false,
       "category": "FRONTEND_UI",
       "integrationRole": "Application Component"
