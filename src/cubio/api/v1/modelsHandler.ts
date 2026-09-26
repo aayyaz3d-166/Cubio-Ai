@@ -93,21 +93,25 @@ export function modelsHandler(req: Request, res: Response): void {
       models = registered.map((reg) => ({
         id: reg.modelId,
         modelId: reg.modelId,
-        name: reg.modelId === 'cubio-native-1m-production' ? 'CUBiO Native 1M Production' : reg.modelId,
-        version: '16.0.0-sealed',
-        parameters: reg.parameters ?? 971520,
-        layerCount: reg.layerCount ?? 6,
-        hiddenDimension: reg.hiddenDimension ?? 128,
-        attentionHeads: 4,
-        maxSequenceLength: 256,
-        vocabSize: 4096,
+        name: reg.modelId === 'cubio-native-1m-production'
+          ? 'CUBiO Native 1M Production'
+          : reg.modelId === 'cubio-model-v1'
+          ? 'CUBiO AI Model V1 (Certified)'
+          : reg.modelId,
+        version: reg.modelId === 'cubio-model-v1' ? '1.0.0-certified' : '16.0.0-sealed',
+        parameters: reg.parameters ?? (reg.modelId === 'cubio-model-v1' ? 4845056 : 971520),
+        layerCount: reg.layerCount ?? (reg.modelId === 'cubio-model-v1' ? 8 : 6),
+        hiddenDimension: reg.hiddenDimension ?? (reg.modelId === 'cubio-model-v1' ? 256 : 128),
+        attentionHeads: reg.modelId === 'cubio-model-v1' ? 8 : 4,
+        maxSequenceLength: reg.modelId === 'cubio-model-v1' ? 128 : 256,
+        vocabSize: reg.modelId === 'cubio-model-v1' ? 1024 : 4096,
         spatialCells: 343,
         epistemicClasses: 7,
-        stateHash: reg.stateHash || '0942c34c1ad6d725063072e37f6d7a5e91537d6e894988f551605bb3691e7c37',
+        stateHash: reg.stateHash || (reg.modelId === 'cubio-model-v1' ? '3816f99e6e04adba7dc8390f34c85541333a650e2d0500799b3103e50b73a33c' : '0942c34c1ad6d725063072e37f6d7a5e91537d6e894988f551605bb3691e7c37'),
         status: 'READY',
         active: true,
-        capability: reg.capability || 'LEVEL 4: Native 1M Sovereign Transformer (6 layers, d=128, 343 spatial cells, 7 epistemic tiers)',
-        productionMode: reg.productionMode || 'NATIVE_1M_PRODUCTION_SEALED',
+        capability: reg.capability || (reg.modelId === 'cubio-model-v1' ? 'LEVEL 4: CUBiO Model V1 Sovereign Transformer (8 layers, d=256, 1024 vocab, 343 spatial cells, 7 epistemic tiers)' : 'LEVEL 4: Native 1M Sovereign Transformer (6 layers, d=128, 343 spatial cells, 7 epistemic tiers)'),
+        productionMode: reg.productionMode || (reg.modelId === 'cubio-model-v1' ? 'CUBIO_MODEL_V1_RESEARCH_RELEASE' : 'NATIVE_1M_PRODUCTION_SEALED'),
         isActuationBlocked: IS_ACTUATION_BLOCKED,
         isOfflineIsolated: OFFLINE_ISOLATED,
       }));

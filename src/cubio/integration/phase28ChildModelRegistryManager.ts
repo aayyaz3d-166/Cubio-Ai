@@ -86,6 +86,13 @@ export class Phase28ChildModelRegistryManager {
       });
     }
 
+    if (!globalRegistry.getModel('cubio-model-v1')) {
+      globalRegistry.registerProductionModel('cubio-model-v1', {
+        capability: 'LEVEL 4: CUBiO Model V1 Sovereign Transformer (8 layers, d=256, 1024 vocab, 343 spatial cells, 7 epistemic tiers)',
+        productionMode: 'CUBIO_MODEL_V1_RESEARCH_RELEASE',
+      });
+    }
+
     if (!globalRegistry.getModel('cubio-synthesis-planner-v1')) {
       globalRegistry.registerProductionModel('cubio-synthesis-planner-v1', {
         capability: 'LEVEL 4: Multi-Turn Cognitive Synthesis & Planning Engine',
@@ -99,6 +106,7 @@ export class Phase28ChildModelRegistryManager {
       childId: 'cubio-child-mvp',
       allowedModelIds: [
         'cubio-native-1m-production',
+        'cubio-model-v1',
         'cubio-deterministic-core',
         'cubio-spatial-grounding-v1',
       ],
@@ -111,6 +119,7 @@ export class Phase28ChildModelRegistryManager {
       childId: 'cubio-child-mvp-1',
       allowedModelIds: [
         'cubio-native-1m-production',
+        'cubio-model-v1',
         'cubio-deterministic-core',
       ],
       defaultModelId: 'cubio-native-1m-production',
@@ -179,6 +188,8 @@ export class Phase28ChildModelRegistryManager {
     switch (modelId) {
       case 'cubio-native-1m-production':
         return 'CUBiO Native 1M Production';
+      case 'cubio-model-v1':
+        return 'CUBiO AI Model V1 (Certified)';
       case 'cubio-deterministic-core':
         return 'CUBiO Deterministic Spatial Core';
       case 'cubio-spatial-grounding-v1':

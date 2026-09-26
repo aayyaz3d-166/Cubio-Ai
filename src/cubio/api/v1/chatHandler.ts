@@ -23,6 +23,7 @@ import { UsageLedger } from '../billing/usageLedger';
 import { SubscriptionManager } from '../billing/subscriptionManager';
 import { PlanRegistry } from '../billing/planRegistry';
 import { Native1MProductionService } from '../../inference/native1mProductionService';
+import { CubiOModelV1ProductionService } from '../../inference/cubioModelV1ProductionService';
 import { Phase28ChildModelRegistryManager } from '../../integration/phase28ChildModelRegistryManager';
 
 export interface PublicChatApiResponse {
@@ -429,7 +430,9 @@ export async function chatHandler(req: Request, res: Response): Promise<void> {
       },
       metadata: {
         latencyMs: chatResponse.latencyMs || (Date.now() - reqStart),
-        mode: Native1MProductionService.getInstance().isReady()
+        mode: effectiveModelId === 'cubio-model-v1' && CubiOModelV1ProductionService.getInstance().isReady()
+          ? 'CUBIO_MODEL_V1_RESEARCH_RELEASE'
+          : Native1MProductionService.getInstance().isReady()
           ? 'NATIVE_1M_PRODUCTION_SEALED'
           : 'NEURAL_SHADOW',
         isActuationBlocked: IS_ACTUATION_BLOCKED,

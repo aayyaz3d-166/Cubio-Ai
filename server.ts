@@ -46,6 +46,7 @@ import {
 } from './src/cubio/api/security/index.js';
 import { v1Router } from './src/cubio/api/v1/router.js';
 import { Native1MProductionService } from './src/cubio/inference/native1mProductionService.js';
+import { CubiOModelV1ProductionService } from './src/cubio/inference/cubioModelV1ProductionService.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Environment & Path Setup
@@ -88,6 +89,18 @@ async function prewarmModel(): Promise<void> {
   } else {
     console.log('[BOOT] Status: QWEN_REMOVED, NATIVE_INFERENCE_NOT_YET_AVAILABLE.');
     modelReady = false;
+  }
+
+  // 0b. Prewarm certified CUBiO Model V1 research release checkpoint
+  const v1CkptPath = path.resolve(__dirname, 'data', 'checkpoints', 'v1', 'MT10_FINAL_STAGE_2_STEP_0150.vtstate');
+  if (fs.existsSync(v1CkptPath)) {
+    const v1Service = CubiOModelV1ProductionService.getInstance();
+    const v1Init = await v1Service.initialize(v1CkptPath);
+    if (v1Init) {
+      console.log(`[BOOT] ✅ CUBiO Model V1 restored (${v1Service.getModelMetadata().parameters} params, step 150, stateHash: ${v1Service.getModelMetadata().stateHash.slice(0, 16)}...).`);
+    } else {
+      console.warn('[BOOT] CUBiO Model V1 initialization warning:', v1Service.getLastError());
+    }
   }
 
   // 1. Cold-start conversation memory rehydration
@@ -199,19 +212,27 @@ app.post('/api/cubio/checkpoint/generate', requireAuth(), requireRole('admin'), 
 });
 
 // ── /health & /api/cubio/health quick-check ──────────────────────────────────
-const getHealthStatus = () => ({
-  status: 'ok',
-  qwenRemoved: true,
-  activeQwenDependency: 0,
-  qwenStatus: 'QWEN_REMOVED',
-  nativeInferenceAvailable: modelReady,
-  nativeInferenceStatus: modelReady ? 'NATIVE_1M_PRODUCTION_SEALED_AVAILABLE' : 'NATIVE_INFERENCE_NOT_YET_AVAILABLE',
-  productionCheckpoint: 'phase16_production_final_sealed_1m.3dmemory',
-  externalModelCalls: 0,
-  modelReady,
-  uptime: process.uptime(),
-  timestamp: new Date().toISOString(),
-});
+const getHealthStatus = () => {
+  const v1Service = CubiOModelV1ProductionService.getInstance();
+  const v1Ready = v1Service.isReady();
+  return {
+    status: 'ok',
+    qwenRemoved: true,
+    activeQwenDependency: 0,
+    qwenStatus: 'QWEN_REMOVED',
+    nativeInferenceAvailable: modelReady,
+    nativeInferenceStatus: modelReady ? 'NATIVE_1M_PRODUCTION_SEALED_AVAILABLE' : 'NATIVE_INFERENCE_NOT_YET_AVAILABLE',
+    productionCheckpoint: 'phase16_production_final_sealed_1m.3dmemory',
+    cubioModelV1Available: v1Ready,
+    cubioModelV1Status: v1Ready ? 'CUBIO_MODEL_V1_READY' : 'CUBIO_MODEL_V1_UNAVAILABLE',
+    cubioModelV1Checkpoint: 'data/checkpoints/v1/MT10_FINAL_STAGE_2_STEP_0150.vtstate',
+    cubioModelV1StateHash: v1Ready ? v1Service.getVerifiedStateHash() : null,
+    externalModelCalls: 0,
+    modelReady,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  };
+};
 
 app.get('/health', (_req: Request, res: Response) => {
   res.json(getHealthStatus());
