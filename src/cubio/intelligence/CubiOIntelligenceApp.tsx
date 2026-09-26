@@ -66,6 +66,9 @@ export const CubiOIntelligenceApp: React.FC<CubiOIntelligenceAppProps> = ({
 
   const [activeConversationId, setActiveConversationId] = useState<string>('CONV_LIVE_GENESIS');
 
+  // Selected Model State (cubio-model-v1 default, cubio-tiny-lm-v1 selectable)
+  const [selectedModelId, setSelectedModelId] = useState<string>('cubio-model-v1');
+
   // Messages Store keyed by conversationId
   const [messagesMap, setMessagesMap] = useState<Record<string, ChatMessageData[]>>({
     CONV_LIVE_GENESIS: [],
@@ -216,7 +219,7 @@ export const CubiOIntelligenceApp: React.FC<CubiOIntelligenceAppProps> = ({
                   conversationId: activeConversationId,
                   message: cleanPrompt,
                   options: {
-                    modelId: 'cubio-model-v1',
+                    modelId: selectedModelId,
                     temperature: 0.3,
                   },
                 }),
@@ -303,7 +306,7 @@ export const CubiOIntelligenceApp: React.FC<CubiOIntelligenceAppProps> = ({
         setIsLoading(false);
       }
     },
-    [activeConversationId, harmonic, intelligenceService, memories, messagesMap]
+    [activeConversationId, harmonic, intelligenceService, memories, messagesMap, selectedModelId]
   );
 
   const handleRegenerate = useCallback(
@@ -381,11 +384,7 @@ export const CubiOIntelligenceApp: React.FC<CubiOIntelligenceAppProps> = ({
         }}
       >
         {/* Top Header */}
-        <IntelligenceHeader
-          onNewChat={handleNewChat}
-          onOpenMemory={() => setIsMemoryModalOpen(true)}
-          memoryCount={memories.length}
-        />
+        <IntelligenceHeader onNewChat={handleNewChat} onOpenMemory={() => setIsMemoryModalOpen(true)} memoryCount={memories.length} selectedModelId={selectedModelId} onSelectModel={setSelectedModelId} />
 
         {/* Scrollable Messages Stream */}
         <ChatView

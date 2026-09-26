@@ -17,6 +17,8 @@ export interface IntelligenceHeaderProps {
   readonly onOpenMemory?: () => void;
   readonly onOpenSettings?: () => void;
   readonly memoryCount?: number;
+  readonly selectedModelId?: string;
+  readonly onSelectModel?: (modelId: string) => void;
 }
 
 export const IntelligenceHeader: React.FC<IntelligenceHeaderProps> = ({
@@ -24,6 +26,8 @@ export const IntelligenceHeader: React.FC<IntelligenceHeaderProps> = ({
   onOpenMemory,
   onOpenSettings,
   memoryCount = 0,
+  selectedModelId = 'cubio-model-v1',
+  onSelectModel,
 }) => {
   return (
     <header
@@ -70,23 +74,51 @@ export const IntelligenceHeader: React.FC<IntelligenceHeaderProps> = ({
             CUB<span style={{ color: '#38BDF8' }}>i</span>O <span style={{ color: '#60A5FA' }}>AI</span>
           </span>
 
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              padding: '3px 8px',
-              borderRadius: '6px',
-              backgroundColor: '#0B1325',
-              border: '1px solid #1E293B',
-              fontSize: '11px',
-              color: '#94A3B8',
-              fontFamily: 'Inter, system-ui, sans-serif',
-              fontWeight: 500,
-            }}
-          >
-            <Sparkles className="w-3 h-3 text-cyan-400" />
-            <span>2.0 Pro</span>
+          {/* Model Selector Dropdown */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <select
+              value={selectedModelId}
+              onChange={(e) => onSelectModel?.(e.target.value)}
+              style={{
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 24px 4px 10px',
+                borderRadius: '6px',
+                backgroundColor: '#0B1325',
+                border: '1px solid #1E293B',
+                fontSize: '11px',
+                color: '#38BDF8',
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontWeight: 600,
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+              title="Select AI Model"
+            >
+              <option value="cubio-model-v1" style={{ backgroundColor: '#070B14', color: '#F8FAFC' }}>
+                CUBiO Model V1 (Certified 5M)
+              </option>
+              <option value="cubio-tiny-lm-v1" style={{ backgroundColor: '#070B14', color: '#38BDF8' }}>
+                CUBiO Tiny LM V1 (Conversational)
+              </option>
+              <option value="cubio-native-1m-production" style={{ backgroundColor: '#070B14', color: '#94A3B8' }}>
+                CUBiO Native 1M (Phase 16)
+              </option>
+            </select>
+            <div
+              style={{
+                position: 'absolute',
+                right: '8px',
+                pointerEvents: 'none',
+                fontSize: '9px',
+                color: '#64748B',
+              }}
+            >
+              ▼
+            </div>
           </div>
         </div>
       </div>

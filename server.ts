@@ -47,6 +47,7 @@ import {
 import { v1Router } from './src/cubio/api/v1/router.js';
 import { Native1MProductionService } from './src/cubio/inference/native1mProductionService.js';
 import { CubiOModelV1ProductionService } from './src/cubio/inference/cubioModelV1ProductionService.js';
+import { TinyLMProductionService } from './src/cubio/inference/tiny_lm/tinyLMProductionService.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Environment & Path Setup
@@ -100,6 +101,18 @@ async function prewarmModel(): Promise<void> {
       console.log(`[BOOT] ✅ CUBiO Model V1 restored (${v1Service.getModelMetadata().parameters} params, step 150, stateHash: ${v1Service.getModelMetadata().stateHash.slice(0, 16)}...).`);
     } else {
       console.warn('[BOOT] CUBiO Model V1 initialization warning:', v1Service.getLastError());
+    }
+  }
+
+  // 0c. Prewarm certified Tiny Conversational LM frozen checkpoint
+  const tinyCkptPath = path.resolve(__dirname, 'data', 'checkpoints', 'tiny_lm', 'tiny_lm_v1_frozen_step_000130.json');
+  if (fs.existsSync(tinyCkptPath)) {
+    const tinyService = TinyLMProductionService.getInstance();
+    const tinyInit = await tinyService.initialize(tinyCkptPath);
+    if (tinyInit) {
+      console.log(`[BOOT] ✅ Tiny Conversational LM restored (${tinyService.getModelMetadata().parameters} params, step 130, stateHash: ${tinyService.getVerifiedModelHash().slice(0, 16)}...).`);
+    } else {
+      console.warn('[BOOT] Tiny Conversational LM initialization warning:', tinyService.getLastError());
     }
   }
 
@@ -215,6 +228,8 @@ app.post('/api/cubio/checkpoint/generate', requireAuth(), requireRole('admin'), 
 const getHealthStatus = () => {
   const v1Service = CubiOModelV1ProductionService.getInstance();
   const v1Ready = v1Service.isReady();
+  const tinyService = TinyLMProductionService.getInstance();
+  const tinyReady = tinyService.isReady();
   return {
     status: 'ok',
     qwenRemoved: true,
@@ -227,6 +242,10 @@ const getHealthStatus = () => {
     cubioModelV1Status: v1Ready ? 'CUBIO_MODEL_V1_READY' : 'CUBIO_MODEL_V1_UNAVAILABLE',
     cubioModelV1Checkpoint: 'data/checkpoints/v1/MT10_FINAL_STAGE_2_STEP_0150.vtstate',
     cubioModelV1StateHash: v1Ready ? v1Service.getVerifiedStateHash() : null,
+    cubioTinyLMAvailable: tinyReady,
+    cubioTinyLMStatus: tinyReady ? 'CUBIO_TINY_LM_V1_READY' : 'CUBIO_TINY_LM_V1_UNAVAILABLE',
+    cubioTinyLMCheckpoint: 'data/checkpoints/tiny_lm/tiny_lm_v1_frozen_step_000130.json',
+    cubioTinyLMStateHash: tinyReady ? tinyService.getVerifiedModelHash() : null,
     externalModelCalls: 0,
     modelReady,
     uptime: process.uptime(),

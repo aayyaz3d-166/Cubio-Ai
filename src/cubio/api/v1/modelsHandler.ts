@@ -97,21 +97,27 @@ export function modelsHandler(req: Request, res: Response): void {
           ? 'CUBiO Native 1M Production'
           : reg.modelId === 'cubio-model-v1'
           ? 'CUBiO AI Model V1 (Certified)'
+          : reg.modelId === 'cubio-tiny-lm-v1'
+          ? 'CUBiO Tiny LM V1 (Conversational)'
           : reg.modelId,
-        version: reg.modelId === 'cubio-model-v1' ? '1.0.0-certified' : '16.0.0-sealed',
-        parameters: reg.parameters ?? (reg.modelId === 'cubio-model-v1' ? 4845056 : 971520),
-        layerCount: reg.layerCount ?? (reg.modelId === 'cubio-model-v1' ? 8 : 6),
-        hiddenDimension: reg.hiddenDimension ?? (reg.modelId === 'cubio-model-v1' ? 256 : 128),
-        attentionHeads: reg.modelId === 'cubio-model-v1' ? 8 : 4,
-        maxSequenceLength: reg.modelId === 'cubio-model-v1' ? 128 : 256,
-        vocabSize: reg.modelId === 'cubio-model-v1' ? 1024 : 4096,
+        version: reg.modelId === 'cubio-model-v1'
+          ? '1.0.0-certified'
+          : reg.modelId === 'cubio-tiny-lm-v1'
+          ? '1.0.0-frozen'
+          : '16.0.0-sealed',
+        parameters: reg.parameters ?? (reg.modelId === 'cubio-model-v1' ? 4845056 : reg.modelId === 'cubio-tiny-lm-v1' ? 136192 : 971520),
+        layerCount: reg.layerCount ?? (reg.modelId === 'cubio-model-v1' ? 8 : reg.modelId === 'cubio-tiny-lm-v1' ? 2 : 6),
+        hiddenDimension: reg.hiddenDimension ?? (reg.modelId === 'cubio-model-v1' ? 256 : reg.modelId === 'cubio-tiny-lm-v1' ? 64 : 128),
+        attentionHeads: reg.modelId === 'cubio-model-v1' ? 8 : reg.modelId === 'cubio-tiny-lm-v1' ? 4 : 4,
+        maxSequenceLength: reg.modelId === 'cubio-model-v1' ? 128 : reg.modelId === 'cubio-tiny-lm-v1' ? 64 : 256,
+        vocabSize: reg.modelId === 'cubio-model-v1' ? 1024 : reg.modelId === 'cubio-tiny-lm-v1' ? 512 : 4096,
         spatialCells: 343,
         epistemicClasses: 7,
-        stateHash: reg.stateHash || (reg.modelId === 'cubio-model-v1' ? '3816f99e6e04adba7dc8390f34c85541333a650e2d0500799b3103e50b73a33c' : '0942c34c1ad6d725063072e37f6d7a5e91537d6e894988f551605bb3691e7c37'),
+        stateHash: reg.stateHash || (reg.modelId === 'cubio-model-v1' ? '3816f99e6e04adba7dc8390f34c85541333a650e2d0500799b3103e50b73a33c' : reg.modelId === 'cubio-tiny-lm-v1' ? '3d39bccfe1e532c13fbfbc1c2cb4fa57224dd9726a1c9670f88fabcaa93af3c9' : '0942c34c1ad6d725063072e37f6d7a5e91537d6e894988f551605bb3691e7c37'),
         status: 'READY',
         active: true,
-        capability: reg.capability || (reg.modelId === 'cubio-model-v1' ? 'LEVEL 4: CUBiO Model V1 Sovereign Transformer (8 layers, d=256, 1024 vocab, 343 spatial cells, 7 epistemic tiers)' : 'LEVEL 4: Native 1M Sovereign Transformer (6 layers, d=128, 343 spatial cells, 7 epistemic tiers)'),
-        productionMode: reg.productionMode || (reg.modelId === 'cubio-model-v1' ? 'CUBIO_MODEL_V1_RESEARCH_RELEASE' : 'NATIVE_1M_PRODUCTION_SEALED'),
+        capability: reg.capability || (reg.modelId === 'cubio-model-v1' ? 'LEVEL 4: CUBiO Model V1 Sovereign Transformer (8 layers, d=256, 1024 vocab, 343 spatial cells, 7 epistemic tiers)' : reg.modelId === 'cubio-tiny-lm-v1' ? 'LEVEL 4: Tiny Conversational LM V1 (2 layers, d=64, 512 vocab, Step 130 Certified Frozen)' : 'LEVEL 4: Native 1M Sovereign Transformer (6 layers, d=128, 343 spatial cells, 7 epistemic tiers)'),
+        productionMode: reg.productionMode || (reg.modelId === 'cubio-model-v1' ? 'CUBIO_MODEL_V1_RESEARCH_RELEASE' : reg.modelId === 'cubio-tiny-lm-v1' ? 'TINY_LM_V1_FROZEN_RESEARCH' : 'NATIVE_1M_PRODUCTION_SEALED'),
         isActuationBlocked: IS_ACTUATION_BLOCKED,
         isOfflineIsolated: OFFLINE_ISOLATED,
       }));

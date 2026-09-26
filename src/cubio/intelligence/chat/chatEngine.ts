@@ -69,6 +69,7 @@ import {
 import { ChatMemoryIntegrationEngine } from '../../core/chatMemoryIntegration';
 import { Native1MProductionService } from '../../inference/native1mProductionService';
 import { CubiOModelV1ProductionService } from '../../inference/cubioModelV1ProductionService';
+import { TinyLMProductionService } from '../../inference/tiny_lm/tinyLMProductionService';
 import { NativeInferenceOutput, EpistemicStatus } from '../../model/native_foundation/native_model_types';
 
 export class CubiOChatEngine {
@@ -353,42 +354,58 @@ export class CubiOChatEngine {
       },
     });
 
-    // 7b. Sovereign Model Live Inference Pass (V1 or Native 1M routing)
-    // Routes to CubiOModelV1ProductionService when modelId === 'cubio-model-v1',
+    // 7b. Sovereign Model Live Inference Pass (Tiny LM, V1, or Native 1M routing)
+    // Routes to TinyLMProductionService when modelId === 'cubio-tiny-lm-v1',
+    // to CubiOModelV1ProductionService when modelId === 'cubio-model-v1',
     // otherwise falls back to Native1MProductionService (Phase 16 sealed 1M).
     let native1mEvaluation: any = null;
     let native1mGeneration: NativeInferenceOutput | null = null;
 
-    const useModelV1 = request.options?.modelId === 'cubio-model-v1';
+    const requestedModel = request.options?.modelId;
+    const useTinyLM = requestedModel === 'cubio-tiny-lm-v1';
+    const useModelV1 = requestedModel === 'cubio-model-v1';
+
+    const tinyService = TinyLMProductionService.getInstance();
     const v1Service = CubiOModelV1ProductionService.getInstance();
     const native1mService = Native1MProductionService.getInstance();
 
     // Select the active inference service based on modelId routing
-    const activeService = useModelV1 && v1Service.isReady() ? v1Service : native1mService;
-    const activeServiceLabel = useModelV1 && v1Service.isReady() ? 'CUBiO Model V1' : 'Native 1M';
+    let activeService: any = native1mService;
+    let activeServiceLabel = 'Native 1M';
+
+    if (useTinyLM && tinyService.isReady()) {
+      activeService = tinyService;
+      activeServiceLabel = 'CUBiO Tiny LM V1';
+    } else if (useModelV1 && v1Service.isReady()) {
+      activeService = v1Service;
+      activeServiceLabel = 'CUBiO Model V1';
+    }
 
     if (activeService.isReady()) {
       // Telemetry-only evaluation pass (classification metadata)
-      try {
-        native1mEvaluation = activeService.evaluatePrompt(
-          request.message,
-          request.options?.spatialCellId
-        );
-      } catch (err: any) {
-        if (err?.name === 'ActuationBlockedError' || err?.message?.includes('actuation')) {
-          throw new ChatEngineError(
-            err?.message || `Hardware actuation prohibited by ${activeServiceLabel} model guard`,
-            ChatErrorType.ACTUATION_PROHIBITED
+      if (typeof activeService.evaluatePrompt === 'function') {
+        try {
+          native1mEvaluation = activeService.evaluatePrompt(
+            request.message,
+            request.options?.spatialCellId
           );
+        } catch (err: any) {
+          if (err?.name === 'ActuationBlockedError' || err?.message?.includes('actuation')) {
+            throw new ChatEngineError(
+              err?.message || `Hardware actuation prohibited by ${activeServiceLabel} model guard`,
+              ChatErrorType.ACTUATION_PROHIBITED
+            );
+          }
         }
       }
 
       // Primary generation pass — autoregressive full text output
       // Circuit-breaker timeout, falls back to deterministic pipeline on expiry/error
       try {
-        const GENERATION_TIMEOUT_MS = useModelV1 ? 3000 : 1500;
-        // Conservative settings for V1 to reduce token fragmentation
-        const generationOptions = useModelV1
+        const GENERATION_TIMEOUT_MS = useTinyLM ? 2000 : useModelV1 ? 3000 : 1500;
+        const generationOptions = useTinyLM
+          ? { maxTokens: 32, temperature: 0.0 }
+          : useModelV1
           ? { maxTokens: 64, temperature: 0.3, topK: 20, enforceEpistemicLockout: true }
           : { maxTokens: 96, temperature: 0.7, topK: 40, enforceEpistemicLockout: true };
 

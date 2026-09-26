@@ -24,6 +24,7 @@ import { SubscriptionManager } from '../billing/subscriptionManager';
 import { PlanRegistry } from '../billing/planRegistry';
 import { Native1MProductionService } from '../../inference/native1mProductionService';
 import { CubiOModelV1ProductionService } from '../../inference/cubioModelV1ProductionService';
+import { TinyLMProductionService } from '../../inference/tiny_lm/tinyLMProductionService';
 import { Phase28ChildModelRegistryManager } from '../../integration/phase28ChildModelRegistryManager';
 
 export interface PublicChatApiResponse {
@@ -431,7 +432,9 @@ export async function chatHandler(req: Request, res: Response): Promise<void> {
       },
       metadata: {
         latencyMs: chatResponse.latencyMs || (Date.now() - reqStart),
-        mode: effectiveModelId === 'cubio-model-v1' && CubiOModelV1ProductionService.getInstance().isReady()
+        mode: effectiveModelId === 'cubio-tiny-lm-v1' && TinyLMProductionService.getInstance().isReady()
+          ? 'TINY_LM_V1_FROZEN_RESEARCH'
+          : effectiveModelId === 'cubio-model-v1' && CubiOModelV1ProductionService.getInstance().isReady()
           ? 'CUBIO_MODEL_V1_RESEARCH_RELEASE'
           : Native1MProductionService.getInstance().isReady()
           ? 'NATIVE_1M_PRODUCTION_SEALED'

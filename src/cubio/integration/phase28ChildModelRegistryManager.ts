@@ -99,6 +99,13 @@ export class Phase28ChildModelRegistryManager {
         productionMode: 'SYNTHESIS_PLANNER',
       });
     }
+
+    if (!globalRegistry.getModel('cubio-tiny-lm-v1')) {
+      globalRegistry.registerProductionModel('cubio-tiny-lm-v1', {
+        capability: 'LEVEL 4: Tiny Conversational LM V1 (2 layers, d=64, 512 vocab, Step 130 Certified Frozen)',
+        productionMode: 'TINY_LM_V1_FROZEN_RESEARCH',
+      });
+    }
   }
 
   private seedDefaultPolicies(): void {
@@ -107,6 +114,7 @@ export class Phase28ChildModelRegistryManager {
       allowedModelIds: [
         'cubio-native-1m-production',
         'cubio-model-v1',
+        'cubio-tiny-lm-v1',
         'cubio-deterministic-core',
         'cubio-spatial-grounding-v1',
       ],
@@ -120,6 +128,7 @@ export class Phase28ChildModelRegistryManager {
       allowedModelIds: [
         'cubio-native-1m-production',
         'cubio-model-v1',
+        'cubio-tiny-lm-v1',
         'cubio-deterministic-core',
       ],
       defaultModelId: 'cubio-native-1m-production',
@@ -190,6 +199,8 @@ export class Phase28ChildModelRegistryManager {
         return 'CUBiO Native 1M Production';
       case 'cubio-model-v1':
         return 'CUBiO AI Model V1 (Certified)';
+      case 'cubio-tiny-lm-v1':
+        return 'CUBiO Tiny LM V1 (Conversational)';
       case 'cubio-deterministic-core':
         return 'CUBiO Deterministic Spatial Core';
       case 'cubio-spatial-grounding-v1':
