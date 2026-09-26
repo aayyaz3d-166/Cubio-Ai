@@ -400,7 +400,8 @@ export async function chatHandler(req: Request, res: Response): Promise<void> {
         preferredStrategy: body.options.preferredStrategy,
         temperature: body.options.temperature,
         timeoutMs: body.options.timeoutMs,
-      } : undefined,
+        modelId: effectiveModelId,
+      } : { modelId: effectiveModelId },
     };
 
     const chatResponse: ChatResponse = await chatEngine.executeChat(engineRequest);

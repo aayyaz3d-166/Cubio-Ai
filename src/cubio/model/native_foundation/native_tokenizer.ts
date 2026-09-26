@@ -176,6 +176,13 @@ export class NativeTokenizer {
       result += piece;
     }
 
+    // Post-decode normalization: collapse spaces, fix punctuation spacing, trim
+    result = result
+      .replace(/\s+/g, ' ')                          // collapse multiple whitespace to single space
+      .replace(/\s+([.,!?;:)\]}])/g, '$1')            // remove space before closing punctuation
+      .replace(/([(\[{])\s+/g, '$1')                  // remove space after opening brackets
+      .trim();
+
     return result;
   }
 

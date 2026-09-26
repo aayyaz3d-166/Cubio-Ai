@@ -68,6 +68,7 @@ import {
 // Task 14: Canonical Memory Integration
 import { ChatMemoryIntegrationEngine } from '../../core/chatMemoryIntegration';
 import { Native1MProductionService } from '../../inference/native1mProductionService';
+import { CubiOModelV1ProductionService } from '../../inference/cubioModelV1ProductionService';
 import { NativeInferenceOutput, EpistemicStatus } from '../../model/native_foundation/native_model_types';
 
 export class CubiOChatEngine {
@@ -352,41 +353,50 @@ export class CubiOChatEngine {
       },
     });
 
-    // 7b. Native 1M Sovereign Model Live Inference Pass
-    // Phase 45: Full autoregressive generation via generate() + evaluatePrompt for telemetry
+    // 7b. Sovereign Model Live Inference Pass (V1 or Native 1M routing)
+    // Routes to CubiOModelV1ProductionService when modelId === 'cubio-model-v1',
+    // otherwise falls back to Native1MProductionService (Phase 16 sealed 1M).
     let native1mEvaluation: any = null;
     let native1mGeneration: NativeInferenceOutput | null = null;
+
+    const useModelV1 = request.options?.modelId === 'cubio-model-v1';
+    const v1Service = CubiOModelV1ProductionService.getInstance();
     const native1mService = Native1MProductionService.getInstance();
-    if (native1mService.isReady()) {
+
+    // Select the active inference service based on modelId routing
+    const activeService = useModelV1 && v1Service.isReady() ? v1Service : native1mService;
+    const activeServiceLabel = useModelV1 && v1Service.isReady() ? 'CUBiO Model V1' : 'Native 1M';
+
+    if (activeService.isReady()) {
       // Telemetry-only evaluation pass (classification metadata)
       try {
-        native1mEvaluation = native1mService.evaluatePrompt(
+        native1mEvaluation = activeService.evaluatePrompt(
           request.message,
           request.options?.spatialCellId
         );
       } catch (err: any) {
         if (err?.name === 'ActuationBlockedError' || err?.message?.includes('actuation')) {
           throw new ChatEngineError(
-            err?.message || 'Hardware actuation prohibited by Native 1M model guard',
+            err?.message || `Hardware actuation prohibited by ${activeServiceLabel} model guard`,
             ChatErrorType.ACTUATION_PROHIBITED
           );
         }
       }
 
-      // Phase 45: Primary generation pass — autoregressive full text output
-      // Circuit-breaker: 1500ms timeout, falls back to deterministic pipeline on expiry/error
+      // Primary generation pass — autoregressive full text output
+      // Circuit-breaker timeout, falls back to deterministic pipeline on expiry/error
       try {
-        const GENERATION_TIMEOUT_MS = 1500;
+        const GENERATION_TIMEOUT_MS = useModelV1 ? 3000 : 1500;
+        // Conservative settings for V1 to reduce token fragmentation
+        const generationOptions = useModelV1
+          ? { maxTokens: 64, temperature: 0.3, topK: 20, enforceEpistemicLockout: true }
+          : { maxTokens: 96, temperature: 0.7, topK: 40, enforceEpistemicLockout: true };
+
         const generationPromise = new Promise<NativeInferenceOutput>((resolve, reject) => {
           try {
-            resolve(native1mService.generate(
+            resolve(activeService.generate(
               request.message,
-              {
-                maxTokens: 96,
-                temperature: 0.7,
-                topK: 40,
-                enforceEpistemicLockout: true,
-              },
+              generationOptions,
               request.options?.spatialCellId
             ));
           } catch (e) {
@@ -394,13 +404,13 @@ export class CubiOChatEngine {
           }
         });
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Native1M generation timeout')), GENERATION_TIMEOUT_MS)
+          setTimeout(() => reject(new Error(`${activeServiceLabel} generation timeout`)), GENERATION_TIMEOUT_MS)
         );
         native1mGeneration = await Promise.race([generationPromise, timeoutPromise]);
       } catch (genErr: any) {
         if (genErr?.name === 'ActuationBlockedError' || genErr?.message?.includes('actuation')) {
           throw new ChatEngineError(
-            genErr?.message || 'Hardware actuation prohibited by Native 1M generation guard',
+            genErr?.message || `Hardware actuation prohibited by ${activeServiceLabel} generation guard`,
             ChatErrorType.ACTUATION_PROHIBITED
           );
         }

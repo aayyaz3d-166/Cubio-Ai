@@ -159,6 +159,7 @@ export interface ChatRequestOptions {
   readonly temperature?: number;
   readonly timeoutMs?: number;
   readonly enforceEpistemicLockout?: boolean;
+  readonly modelId?: string;
 }
 
 export interface ChatRequest {
