@@ -186,32 +186,59 @@ export const CubiOIntelligenceApp: React.FC<CubiOIntelligenceAppProps> = ({
         ];
 
         const executionPromise = (async () => {
-          // 1. Direct HTTP POST to /api/cubio/chat
+          // 1. Direct HTTP POST to /api/v1/chat with CUBiO Model V1 routing
           let apiSuccess = false;
           try {
             if (typeof window !== 'undefined' && window.fetch) {
-              const res = await fetch('/api/cubio/chat', {
+              // Resolve auth token: sessionStorage → demo fallback
+              let authToken: string | null = null;
+              try {
+                const stored = window.sessionStorage?.getItem('cubio_web_studio_auth');
+                if (stored) {
+                  const parsed = JSON.parse(stored);
+                  authToken = parsed?.token || null;
+                }
+              } catch { /* safe swallow */ }
+              if (!authToken) {
+                authToken = 'cubio_mvp_demo_key_2026'; // Same demo key as CubiOWebStudioApp
+              }
+
+              const requestId = `req_intel_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+              const res = await fetch('/api/v1/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${authToken}`,
+                },
                 body: JSON.stringify({
-                  sessionId: activeConversationId,
-                  messages: formattedMessages,
-                  config: { maxNewTokens: 256, temperature: 0.7 },
+                  requestId,
+                  conversationId: activeConversationId,
+                  message: cleanPrompt,
+                  options: {
+                    modelId: 'cubio-model-v1',
+                    temperature: 0.3,
+                  },
                 }),
               });
 
               if (res.ok) {
                 const resJson = await res.json();
-                const respData = resJson.data || resJson;
-                if (respData?.message?.content) {
-                  content = respData.message.content;
-                  confidence = 0.99;
+                // /api/v1/chat response format: { response: { text, confidence, epistemicState }, metadata: { ... } }
+                if (resJson?.response?.text) {
+                  content = resJson.response.text;
+                  confidence = resJson.response.confidence ?? 0.99;
+                  apiSuccess = true;
+                } else if (resJson?.text) {
+                  // Fallback if response is flat
+                  content = resJson.text;
+                  confidence = resJson.confidence ?? 0.99;
                   apiSuccess = true;
                 }
               }
             }
           } catch (fetchErr) {
-            console.warn('[CubiO UI] Direct fetch /api/cubio/chat unavailable, using local bridge dispatch:', fetchErr);
+            console.warn('[CubiO Intelligence] /api/v1/chat unavailable, using local bridge fallback:', fetchErr);
           }
 
           // 2. Local Bridge Dispatch if HTTP fetch unavailable

@@ -131,6 +131,7 @@ export default function App() {
     // Explicit other modes route away from Web Studio
     if (
       search.includes('mode=core') ||
+      search.includes('mode=intelligence') ||
       search.includes('mode=studio') ||
       search.includes('mode=network') ||
       search.includes('mode=f11') ||
@@ -138,6 +139,7 @@ export default function App() {
       search.includes('mode=r9') ||
       search.includes('mode=legacy') ||
       hash.includes('#core') ||
+      hash.includes('#intelligence') ||
       hash.includes('#studio') ||
       hash.includes('#network') ||
       hash.includes('#f11') ||
@@ -261,6 +263,7 @@ export default function App() {
 
       const isExplicitOther = (
         search.includes('mode=core') ||
+        search.includes('mode=intelligence') ||
         search.includes('mode=studio') ||
         search.includes('mode=network') ||
         search.includes('mode=f11') ||
@@ -268,6 +271,7 @@ export default function App() {
         search.includes('mode=r9') ||
         search.includes('mode=legacy') ||
         hash.includes('#core') ||
+        hash.includes('#intelligence') ||
         hash.includes('#studio') ||
         hash.includes('#network') ||
         hash.includes('#f11') ||
